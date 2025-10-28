@@ -1,5 +1,6 @@
 package com.open436.auth.dto;
 
+import com.open436.auth.validation.PasswordMatch;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@PasswordMatch(message = "两次输入的密码不一致")
 public class UpdatePasswordRequest {
     
     /**

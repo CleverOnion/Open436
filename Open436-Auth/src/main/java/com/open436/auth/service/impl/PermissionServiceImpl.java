@@ -62,6 +62,15 @@ public class PermissionServiceImpl implements PermissionService {
     public void clearUserPermissionsCache(Long userId) {
         log.info("清除用户权限缓存: userId={}", userId);
     }
+    
+    /**
+     * 清除所有用户权限缓存
+     */
+    @Override
+    @CacheEvict(value = "userPermissions", allEntries = true)
+    public void clearAllPermissionsCache() {
+        log.info("清除所有用户权限缓存");
+    }
 }
 
 

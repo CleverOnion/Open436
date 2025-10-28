@@ -2,6 +2,7 @@ package com.open436.auth.repository;
 
 import com.open436.auth.base.BaseIntegrationTest;
 import com.open436.auth.entity.UserAuth;
+import com.open436.auth.enums.UserStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,7 +30,7 @@ class UserAuthRepositoryTest extends BaseIntegrationTest {
         // Then: 应该查询成功
         assertThat(result).isPresent();
         assertThat(result.get().getUsername()).isEqualTo("test_admin");
-        assertThat(result.get().getStatus()).isEqualTo("active");
+        assertThat(result.get().getStatus()).isEqualTo(UserStatus.ACTIVE.getCode());
     }
     
     @Test
@@ -71,11 +72,11 @@ class UserAuthRepositoryTest extends BaseIntegrationTest {
         // Given: 测试数据中有active和disabled用户
         
         // When: 查询所有活跃用户
-        List<UserAuth> activeUsers = userAuthRepository.findByStatus("active");
+        List<UserAuth> activeUsers = userAuthRepository.findByStatus(UserStatus.ACTIVE.getCode());
         
         // Then: 应该只包含active用户
         assertThat(activeUsers).isNotEmpty();
-        assertThat(activeUsers).allMatch(user -> "active".equals(user.getStatus()));
+        assertThat(activeUsers).allMatch(user -> UserStatus.ACTIVE.getCode().equals(user.getStatus()));
     }
     
     @Test
@@ -83,7 +84,7 @@ class UserAuthRepositoryTest extends BaseIntegrationTest {
         // Given: 测试数据中有disabled用户
         
         // When: 查询所有禁用用户
-        List<UserAuth> disabledUsers = userAuthRepository.findByStatus("disabled");
+        List<UserAuth> disabledUsers = userAuthRepository.findByStatus(UserStatus.DISABLED.getCode());
         
         // Then: 应该包含test_disabled用户
         assertThat(disabledUsers).isNotEmpty();
@@ -96,7 +97,7 @@ class UserAuthRepositoryTest extends BaseIntegrationTest {
         UserAuth newUser = new UserAuth();
         newUser.setUsername("new_test_user");
         newUser.setPasswordHash("$2a$10$test_hash");
-        newUser.setStatus("active");
+        newUser.setStatus(UserStatus.ACTIVE.getCode());
         
         // When: 保存用户
         UserAuth saved = userAuthRepository.save(newUser);
@@ -123,32 +124,36 @@ class UserAuthRepositoryTest extends BaseIntegrationTest {
     }
     
     @Test
-    void testUpdateStatus() {
+    void testUpdate_ChangeStatus() {
         // Given: test_user用户
         UserAuth user = userAuthRepository.findByUsername("test_user").orElseThrow();
-        Long userId = user.getId();
         String originalStatus = user.getStatus();
         
         // When: 更新状态为disabled
-        int updated = userAuthRepository.updateStatus(userId, "disabled");
+        user.setStatus(UserStatus.DISABLED.getCode());
+        UserAuth updated = userAuthRepository.save(user);
         
         // Then: 应该更新成功
-        assertThat(updated).isEqualTo(1);
+        assertThat(updated.getStatus()).isEqualTo(UserStatus.DISABLED.getCode());
+        assertThat(updated.getStatus()).isNotEqualTo(originalStatus);
         
-        // Note: 由于@Transactional，实体可能还未同步
-        // 在实际应用中会正常工作
+        // 清理：恢复原状态
+        user.setStatus(originalStatus);
+        userAuthRepository.save(user);
     }
     
     @Test
-    void testFindByUsernameContaining() {
-        // Given: 测试数据中有多个test_开头的用户
+    void testFindByUsername_LoadsRoles() {
+        // Given: test_admin用户拥有角色
         
-        // When: 模糊查询包含"test_"的用户
-        List<UserAuth> results = userAuthRepository.findByUsernameContaining("test_");
+        // When: 根据用户名查询（使用@EntityGraph加载角色）
+        Optional<UserAuth> result = userAuthRepository.findByUsername("test_admin");
         
-        // Then: 应该返回所有匹配的用户
-        assertThat(results).hasSizeGreaterThanOrEqualTo(3);
-        assertThat(results).allMatch(user -> user.getUsername().contains("test_"));
+        // Then: 应该级联查询到角色
+        assertThat(result).isPresent();
+        UserAuth user = result.get();
+        assertThat(user.getRoles()).isNotEmpty();
+        assertThat(user.getPrimaryRoleCode()).isNotNull();
     }
 }
 

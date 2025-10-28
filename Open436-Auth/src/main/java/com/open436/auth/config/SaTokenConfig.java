@@ -2,15 +2,14 @@ package com.open436.auth.config;
 
 import cn.dev33.satoken.interceptor.SaInterceptor;
 import cn.dev33.satoken.stp.StpInterface;
-import cn.dev33.satoken.stp.StpUtil;
 import com.open436.auth.service.PermissionService;
+import com.open436.auth.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,6 +21,7 @@ import java.util.List;
 public class SaTokenConfig implements WebMvcConfigurer {
     
     private final PermissionService permissionService;
+    private final RoleService roleService;
     
     /**
      * 注册 Sa-Token 拦截器
@@ -50,11 +50,7 @@ public class SaTokenConfig implements WebMvcConfigurer {
             @Override
             public List<String> getPermissionList(Object loginId, String loginType) {
                 Long userId = Long.parseLong(loginId.toString());
-                
-                // 从数据库查询用户权限
-                List<String> permissions = permissionService.getUserPermissionCodes(userId);
-                
-                return permissions;
+                return permissionService.getUserPermissionCodes(userId);
             }
             
             /**
@@ -62,14 +58,8 @@ public class SaTokenConfig implements WebMvcConfigurer {
              */
             @Override
             public List<String> getRoleList(Object loginId, String loginType) {
-                // 从 Session 获取角色
-                String role = (String) StpUtil.getSession().get("role");
-                
-                if (role != null) {
-                    return Collections.singletonList(role);
-                }
-                
-                return Collections.emptyList();
+                Long userId = Long.parseLong(loginId.toString());
+                return roleService.getUserRoleCodes(userId);
             }
         };
     }

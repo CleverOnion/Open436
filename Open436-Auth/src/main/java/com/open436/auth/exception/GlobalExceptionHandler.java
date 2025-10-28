@@ -4,6 +4,7 @@ import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.exception.NotPermissionException;
 import cn.dev33.satoken.exception.NotRoleException;
 import com.open436.auth.dto.ApiResponse;
+import com.open436.auth.enums.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -29,11 +30,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotLoginException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotLoginException(NotLoginException e) {
         log.warn("未登录异常: {}", e.getMessage());
+        ErrorCode errorCode = ErrorCode.NOT_LOGGED_IN;
         
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        return ResponseEntity.status(errorCode.getHttpStatus())
             .body(ApiResponse.<Void>builder()
-                .code(40101002)
-                .message("未登录，请先登录")
+                .code(errorCode.getCode())
+                .message(errorCode.getMessage())
                 .timestamp(System.currentTimeMillis())
                 .build());
     }
@@ -44,11 +46,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotPermissionException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotPermissionException(NotPermissionException e) {
         log.warn("权限不足异常: {}", e.getMessage());
+        ErrorCode errorCode = ErrorCode.INSUFFICIENT_PERMISSION;
         
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        return ResponseEntity.status(errorCode.getHttpStatus())
             .body(ApiResponse.<Void>builder()
-                .code(40301002)
-                .message("权限不足")
+                .code(errorCode.getCode())
+                .message(errorCode.getMessage())
                 .timestamp(System.currentTimeMillis())
                 .build());
     }
@@ -59,11 +62,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotRoleException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotRoleException(NotRoleException e) {
         log.warn("角色不足异常: {}", e.getMessage());
+        ErrorCode errorCode = ErrorCode.INSUFFICIENT_ROLE;
         
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        return ResponseEntity.status(errorCode.getHttpStatus())
             .body(ApiResponse.<Void>builder()
-                .code(40301003)
-                .message("需要管理员权限")
+                .code(errorCode.getCode())
+                .message(errorCode.getMessage())
                 .timestamp(System.currentTimeMillis())
                 .build());
     }
@@ -93,10 +97,11 @@ public class GlobalExceptionHandler {
             .collect(Collectors.joining(", "));
         
         log.warn("参数验证失败: {}", message);
+        ErrorCode errorCode = ErrorCode.INVALID_PARAMETER;
         
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(errorCode.getHttpStatus())
             .body(ApiResponse.<Void>builder()
-                .code(40000001)
+                .code(errorCode.getCode())
                 .message("参数验证失败: " + message)
                 .timestamp(System.currentTimeMillis())
                 .build());
@@ -108,10 +113,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNoResourceFoundException(NoResourceFoundException e) {
         // 不打印日志，静默返回404
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        ErrorCode errorCode = ErrorCode.RESOURCE_NOT_FOUND;
+        
+        return ResponseEntity.status(errorCode.getHttpStatus())
             .body(ApiResponse.<Void>builder()
-                .code(40400000)
-                .message("请求的资源不存在")
+                .code(errorCode.getCode())
+                .message(errorCode.getMessage())
                 .timestamp(System.currentTimeMillis())
                 .build());
     }
@@ -122,11 +129,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
         log.error("系统异常: ", e);
+        ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
         
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        return ResponseEntity.status(errorCode.getHttpStatus())
             .body(ApiResponse.<Void>builder()
-                .code(50000000)
-                .message("服务器内部错误")
+                .code(errorCode.getCode())
+                .message(errorCode.getMessage())
                 .timestamp(System.currentTimeMillis())
                 .build());
     }

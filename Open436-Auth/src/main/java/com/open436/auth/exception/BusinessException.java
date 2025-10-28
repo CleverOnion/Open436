@@ -1,5 +1,6 @@
 package com.open436.auth.exception;
 
+import com.open436.auth.enums.ErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
@@ -20,10 +21,33 @@ public class BusinessException extends RuntimeException {
     private final HttpStatus httpStatus;
     
     /**
+     * 构造函数（使用ErrorCode枚举）
+     * @param errorCode 错误码枚举
+     */
+    public BusinessException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.code = errorCode.getCode();
+        this.httpStatus = errorCode.getHttpStatus();
+    }
+    
+    /**
+     * 构造函数（使用ErrorCode枚举，自定义消息）
+     * @param errorCode 错误码枚举
+     * @param customMessage 自定义错误消息
+     */
+    public BusinessException(ErrorCode errorCode, String customMessage) {
+        super(customMessage);
+        this.code = errorCode.getCode();
+        this.httpStatus = errorCode.getHttpStatus();
+    }
+    
+    /**
      * 构造函数
      * @param code 错误码
      * @param message 错误消息
+     * @deprecated 推荐使用 {@link #BusinessException(ErrorCode)}
      */
+    @Deprecated
     public BusinessException(Integer code, String message) {
         super(message);
         this.code = code;
@@ -35,7 +59,9 @@ public class BusinessException extends RuntimeException {
      * @param code 错误码
      * @param message 错误消息
      * @param httpStatus HTTP 状态码
+     * @deprecated 推荐使用 {@link #BusinessException(ErrorCode)}
      */
+    @Deprecated
     public BusinessException(Integer code, String message, HttpStatus httpStatus) {
         super(message);
         this.code = code;

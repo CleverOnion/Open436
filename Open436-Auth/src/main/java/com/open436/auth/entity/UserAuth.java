@@ -2,14 +2,17 @@ package com.open436.auth.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -18,9 +21,11 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "users_auth")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"roles"})
 @EntityListeners(AuditingEntityListener.class)
 public class UserAuth {
     
@@ -71,13 +76,38 @@ public class UserAuth {
     
     /**
      * 用户角色（多对多关系）
+     * 改为LAZY加载，避免N+1查询问题
      */
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "user_roles",
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
+    
+    /**
+     * 获取用户的主要角色（第一个角色）
+     * @return 角色代码，如果没有角色则返回 "user"
+     */
+    public String getPrimaryRoleCode() {
+        return roles.stream()
+            .findFirst()
+            .map(Role::getCode)
+            .orElse("user");
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserAuth userAuth = (UserAuth) o;
+        return Objects.equals(id, userAuth.id);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
 

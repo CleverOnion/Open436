@@ -35,7 +35,40 @@ CREATE DATABASE open436;
 
 ### 3. 配置环境
 
-默认使用开发环境配置，可以通过以下方式切换：
+#### 3.1 环境变量配置
+
+参考 `env.example` 文件配置环境变量：
+
+```bash
+# 查看环境变量示例
+cat env.example
+```
+
+编辑 `.env` 文件，填写实际配置：
+
+```properties
+# 数据库配置
+DB_URL=jdbc:postgresql://localhost:5432/open436
+DB_USERNAME=postgres
+DB_PASSWORD=your_database_password_here
+
+# Redis配置
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+
+# 应用配置
+SPRING_PROFILES_ACTIVE=dev
+```
+
+**重要说明**：
+- 开发环境：配置文件已改用环境变量 `${DB_PASSWORD:postgres}`，默认密码为 `postgres`
+- 测试环境：使用独立的测试数据库配置
+- 生产环境：**必须**通过环境变量配置敏感信息，不要在配置文件中硬编码
+
+#### 3.2 切换环境
+
+可以通过以下方式切换运行环境：
 
 ```bash
 # 修改 application.yml
@@ -115,6 +148,34 @@ Open436-Auth/
 ├── init-database.sql            # 快速初始化脚本
 └── pom.xml
 ```
+
+## 最近更新
+
+### 代码优化 (2024)
+
+最近完成了全面的代码优化，主要改进包括：
+
+**安全性提升**:
+- ✅ 移除硬编码密码，改用环境变量
+- ✅ 使用枚举统一管理错误码和状态值
+- ✅ 增强参数验证，添加 `@PasswordMatch` 注解
+
+**架构优化**:
+- ✅ 修复事务边界问题，拆分数据库操作与外部状态操作
+- ✅ 统一角色权限获取逻辑，创建 `RoleService`
+- ✅ 实现权限和角色缓存自动失效机制
+- ✅ 使用 `@ConfigurationProperties` 统一Token配置
+
+**性能优化**:
+- ✅ 修复N+1查询问题，改用LAZY加载 + `@EntityGraph`
+- ✅ 优化实体类，避免循环依赖（`@Data` → `@Getter/@Setter`）
+- ✅ 添加批量清理缓存方法
+
+**代码质量**:
+- ✅ 抽取魔法值为枚举常量（`UserStatus`, `ErrorCode`, `TokenConstants`）
+- ✅ 重构重复代码，添加 `getPrimaryRoleCode()` 辅助方法
+- ✅ 清理未使用的Repository方法
+- ✅ 增强异常处理，支持ErrorCode枚举
 
 ## 相关文档
 

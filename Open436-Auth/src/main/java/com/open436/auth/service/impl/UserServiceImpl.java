@@ -6,17 +6,19 @@ import com.open436.auth.dto.UpdatePasswordRequest;
 import com.open436.auth.dto.UserInfoResponse;
 import com.open436.auth.entity.Role;
 import com.open436.auth.entity.UserAuth;
+import com.open436.auth.enums.ErrorCode;
+import com.open436.auth.enums.UserStatus;
 import com.open436.auth.exception.BusinessException;
 import com.open436.auth.repository.RoleRepository;
 import com.open436.auth.repository.UserAuthRepository;
+import com.open436.auth.service.PermissionService;
+import com.open436.auth.service.RoleService;
 import com.open436.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 /**
  * 用户管理服务实现类
@@ -29,6 +31,8 @@ public class UserServiceImpl implements UserService {
     private final UserAuthRepository userAuthRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PermissionService permissionService;
+    private final RoleService roleService;
     
     /**
      * 创建用户（管理员功能）
@@ -41,12 +45,12 @@ public class UserServiceImpl implements UserService {
         // 1. 检查用户名是否已存在
         if (userAuthRepository.existsByUsername(request.getUsername())) {
             log.warn("创建用户失败: 用户名已存在 - {}", request.getUsername());
-            throw new BusinessException(40901001, "用户名已存在");
+            throw new BusinessException(ErrorCode.USERNAME_EXISTS);
         }
         
         // 2. 查询角色
         Role role = roleRepository.findByCode(request.getRole())
-            .orElseThrow(() -> new BusinessException(40401002, "角色不存在"));
+            .orElseThrow(() -> new BusinessException(ErrorCode.ROLE_NOT_FOUND));
         
         // 3. 加密密码
         String passwordHash = passwordEncoder.encode(request.getPassword());
@@ -55,7 +59,7 @@ public class UserServiceImpl implements UserService {
         UserAuth user = new UserAuth();
         user.setUsername(request.getUsername());
         user.setPasswordHash(passwordHash);
-        user.setStatus("active");
+        user.setStatus(UserStatus.ACTIVE.getCode());
         user.getRoles().add(role);
         
         user = userAuthRepository.save(user);
@@ -82,14 +86,18 @@ public class UserServiceImpl implements UserService {
         
         // 1. 查询用户
         UserAuth user = userAuthRepository.findById(userId)
-            .orElseThrow(() -> new BusinessException(40401001, "用户不存在"));
+            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         
         // 2. 更新状态
         user.setStatus(status);
         userAuthRepository.save(user);
         
-        // 3. 如果是禁用操作，踢出该用户
-        if ("disabled".equals(status)) {
+        // 3. 清除用户权限和角色缓存
+        permissionService.clearUserPermissionsCache(userId);
+        roleService.clearUserRolesCache(userId);
+        
+        // 4. 如果是禁用操作，踢出该用户
+        if (UserStatus.DISABLED.getCode().equals(status)) {
             StpUtil.kickout(userId);
             log.info("用户已被踢出: userId={}", userId);
         }
@@ -97,10 +105,7 @@ public class UserServiceImpl implements UserService {
         log.info("用户状态更新成功: userId={}, status={}", userId, status);
         
         // 4. 返回用户信息
-        String role = user.getRoles().stream()
-            .findFirst()
-            .map(Role::getCode)
-            .orElse("user");
+        String role = user.getPrimaryRoleCode();
         
         return UserInfoResponse.builder()
             .id(user.getId())
@@ -120,32 +125,27 @@ public class UserServiceImpl implements UserService {
         Long userId = StpUtil.getLoginIdAsLong();
         log.info("修改密码: userId={}", userId);
         
-        // 2. 验证两次密码是否一致
-        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
-            throw new BusinessException(40001004, "两次输入的密码不一致");
-        }
-        
-        // 3. 查询用户
+        // 2. 查询用户
         UserAuth user = userAuthRepository.findById(userId)
-            .orElseThrow(() -> new BusinessException(40401001, "用户不存在"));
+            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         
-        // 4. 验证原密码
+        // 3. 验证原密码
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPasswordHash())) {
             log.warn("修改密码失败: 原密码错误 - userId={}", userId);
-            throw new BusinessException(40101004, "原密码错误");
+            throw new BusinessException(ErrorCode.WRONG_OLD_PASSWORD);
         }
         
-        // 5. 验证新密码不能与原密码相同
+        // 4. 验证新密码不能与原密码相同
         if (passwordEncoder.matches(request.getNewPassword(), user.getPasswordHash())) {
-            throw new BusinessException(40001005, "新密码不能与原密码相同");
+            throw new BusinessException(ErrorCode.PASSWORD_SAME_AS_OLD);
         }
         
-        // 6. 加密新密码并更新
+        // 5. 加密新密码并更新
         String newPasswordHash = passwordEncoder.encode(request.getNewPassword());
         user.setPasswordHash(newPasswordHash);
         userAuthRepository.save(user);
         
-        // 7. 清除所有 Token（强制重新登录）
+        // 6. 清除所有 Token（强制重新登录）
         StpUtil.kickout(userId);
         
         log.info("密码修改成功: userId={}", userId);
@@ -161,7 +161,7 @@ public class UserServiceImpl implements UserService {
         
         // 1. 查询用户
         UserAuth user = userAuthRepository.findById(userId)
-            .orElseThrow(() -> new BusinessException(40401001, "用户不存在"));
+            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         
         // 2. 加密新密码并更新
         String newPasswordHash = passwordEncoder.encode(newPassword);

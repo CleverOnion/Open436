@@ -36,6 +36,11 @@ public interface PermissionService {
      * @param userId 用户ID
      */
     void clearUserPermissionsCache(Long userId);
+    
+    /**
+     * 清除所有用户权限缓存
+     */
+    void clearAllPermissionsCache();
 }
 
 
