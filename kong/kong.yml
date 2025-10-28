@@ -1,0 +1,224 @@
+_format_version: "3.0"
+
+# ========================================
+# Open436 Kong Gateway 配置
+# ========================================
+# 包含服务: M1 认证服务、M7 文件存储服务
+# 认证方式: Sa-Token (M1) / JWT (Kong验证)
+# 版本: v1.0
+# ========================================
+
+# ========================================
+# Services - 后端微服务定义
+# ========================================
+services:
+  # M1 - 认证授权服务
+  - name: auth-service
+    url: http://auth-service:8001
+    tags:
+      - auth
+      - core
+      - m1
+    connect_timeout: 5000
+    write_timeout: 60000
+    read_timeout: 60000
+    retries: 3
+    
+  # M7 - 文件存储服务
+  - name: file-service
+    url: http://file-service:8007
+    tags:
+      - file
+      - storage
+      - m7
+    connect_timeout: 5000
+    write_timeout: 60000    # 文件上传可能耗时较长
+    read_timeout: 60000
+    retries: 2
+
+# ========================================
+# Routes - 路由规则
+# ========================================
+# M1 认证服务路由
+  - name: auth-service
+    routes:
+      # 公开路由（无需认证）
+      - name: auth-public
+        paths:
+          - /api/auth/login
+        strip_path: false
+        methods:
+          - POST
+        tags:
+          - public
+          - no-auth
+        
+      # 受保护路由（需要 JWT）
+      - name: auth-protected
+        paths:
+          - /api/auth/logout
+          - /api/auth/verify
+          - /api/auth/current
+          - /api/auth/password
+          - /api/auth/users
+        strip_path: false
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+        tags:
+          - protected
+          - requires-auth
+        plugins:
+          # Sa-Token 验证（通过自定义插件或请求转换）
+          - name: request-transformer
+            config:
+              add:
+                headers:
+                  - "X-Kong-Gateway: true"
+
+# M7 文件存储服务路由
+  - name: file-service
+    routes:
+      # 公开路由（无需认证 - 文件信息查询）
+      - name: file-public
+        paths:
+          - /api/files/[a-f0-9-]{36}$   # UUID 格式的文件 ID
+          - /api/files/[a-f0-9-]{36}/url$
+          - /api/files/batch-info
+        strip_path: false
+        methods:
+          - GET
+          - POST
+        tags:
+          - public
+          - no-auth
+        regex_priority: 10
+        
+      # 受保护路由（需要 JWT - 上传、标记使用）
+      - name: file-protected
+        paths:
+          - /api/files/upload
+          - /api/files/[a-f0-9-]{36}/mark-used
+          - /api/files/[a-f0-9-]{36}/mark-unused
+        strip_path: false
+        methods:
+          - POST
+        tags:
+          - protected
+          - requires-auth
+        regex_priority: 20
+        plugins:
+          # JWT 验证（转发到 M1 验证）
+          - name: request-transformer
+            config:
+              add:
+                headers:
+                  - "X-Kong-Gateway: true"
+          # 限流（防止滥用上传）
+          - name: rate-limiting
+            config:
+              minute: 20
+              hour: 100
+              policy: local
+              fault_tolerant: true
+        
+      # 管理员路由（需要 JWT + 管理员权限）
+      - name: file-admin
+        paths:
+          - /api/files/[a-f0-9-]{36}$  # DELETE 方法
+          - /api/files/statistics
+          - /api/files/cleanup
+        strip_path: false
+        methods:
+          - DELETE
+          - GET
+          - POST
+        tags:
+          - admin
+          - requires-admin
+        regex_priority: 30
+        plugins:
+          # JWT 验证
+          - name: request-transformer
+            config:
+              add:
+                headers:
+                  - "X-Kong-Gateway: true"
+                  - "X-Requires-Admin: true"
+
+# ========================================
+# Global Plugins - 全局插件
+# ========================================
+plugins:
+  # CORS 跨域配置
+  - name: cors
+    config:
+      origins:
+        - "http://localhost:3000"
+        - "http://localhost:8080"
+        - "https://open436.com"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+        - PATCH
+      headers:
+        - Authorization
+        - Content-Type
+        - X-User-Id
+        - X-User-Role
+      exposed_headers:
+        - X-Auth-Token
+        - X-Total-Count
+      credentials: true
+      max_age: 3600
+      preflight_continue: false
+  
+  # 全局限流（保护所有服务）
+  - name: rate-limiting
+    config:
+      minute: 100
+      hour: 1000
+      policy: local
+      fault_tolerant: true
+      hide_client_headers: false
+  
+  # 请求大小限制（10 MB，适配文件上传）
+  - name: request-size-limiting
+    config:
+      allowed_payload_size: 10
+      size_unit: megabytes
+      require_content_length: false
+  
+  # 响应转换（添加服务器标识）
+  - name: response-transformer
+    config:
+      add:
+        headers:
+          - "X-Powered-By: Kong"
+          - "X-Service: Open436"
+  
+  # 请求日志
+  - name: file-log
+    config:
+      path: /tmp/kong-access.log
+      reopen: true
+
+# ========================================
+# Consumers - API 消费者（可选）
+# ========================================
+# 注意：在 Open436 中，用户由 M1 认证服务管理
+# Kong Consumer 可以与 M1 用户同步，或仅用于服务间调用
+
+consumers:
+  # 管理员用户示例
+  - username: admin
+    custom_id: "1"
+    tags:
+      - admin
+      - system
+

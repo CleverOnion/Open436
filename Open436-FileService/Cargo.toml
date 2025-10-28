@@ -1,0 +1,66 @@
+[package]
+name = "file-service"
+version = "1.0.0"
+edition = "2021"
+authors = ["Open436 Team"]
+
+[dependencies]
+# Web 框架
+actix-web = "4.4"
+actix-multipart = "0.6"
+actix-cors = "0.7"
+
+# 异步运行时
+tokio = { version = "1.35", features = ["full"] }
+
+# 数据库
+sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-native-tls", "uuid", "chrono", "migrate"] }
+
+# S3 存储（轻量级，无需 CMake）
+rust-s3 = "0.34"
+
+# 序列化
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# UUID
+uuid = { version = "1.6", features = ["v4", "serde"] }
+
+# 时间处理
+chrono = { version = "0.4", features = ["serde"] }
+
+# 配置管理
+dotenvy = "0.15"
+
+# 日志
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-actix-web = "0.7"
+
+# 验证
+validator = { version = "0.16", features = ["derive"] }
+
+# 文件类型检测
+infer = "0.15"
+
+# 定时任务
+tokio-cron-scheduler = "0.9"
+
+# 错误处理
+anyhow = "1.0"
+thiserror = "1.0"
+
+# 异步 trait
+async-trait = "0.1"
+
+# HTTP 客户端（用于验证 JWT）
+reqwest = { version = "0.11", features = ["json"] }
+
+# 实用工具
+futures-util = "0.3"
+bytes = "1.5"
+
+[dev-dependencies]
+# 测试
+tokio-test = "0.4"
+mockall = "0.12"
