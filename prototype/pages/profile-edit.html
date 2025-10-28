@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>编辑资料 - Open436 论坛</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/navbar.css">
+  <link rel="stylesheet" href="../css/sidebar.css">
+  <style>
+    .main-content {
+      padding: var(--space-xl) 0;
+      min-height: calc(100vh - 64px);
+    }
+
+    .edit-container {
+      background: var(--background);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-xl);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .edit-header {
+      margin-bottom: var(--space-xl);
+      padding-bottom: var(--space-lg);
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .edit-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .edit-description {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .avatar-section {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      padding: var(--space-lg);
+      background: var(--background-secondary);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-xl);
+    }
+
+    .avatar-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid var(--background);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .avatar-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar-info {
+      flex: 1;
+    }
+
+    .avatar-info h3 {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .avatar-info p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-base);
+    }
+
+    .avatar-actions {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    .form-section {
+      margin-bottom: var(--space-xl);
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: var(--space-base);
+      padding-bottom: var(--space-sm);
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: var(--space-base);
+      justify-content: flex-end;
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--divider);
+    }
+
+    .char-count {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-align: right;
+      margin-top: var(--space-xs);
+    }
+
+    @media (max-width: 599px) {
+      .edit-container {
+        padding: var(--space-lg);
+      }
+
+      .avatar-section {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .avatar-actions {
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .form-actions {
+        flex-direction: column-reverse;
+      }
+
+      .form-actions .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="navbar-container">
+      <a href="home.html" class="navbar-brand">
+        <div class="navbar-logo">O</div>
+        <span>Open436</span>
+      </a>
+
+      <div class="navbar-menu">
+        <a href="home.html" class="navbar-link">首页</a>
+        <a href="favorites.html" class="navbar-link">我的收藏</a>
+      </div>
+
+      <div class="navbar-search">
+        <input type="text" class="search-input" placeholder="搜索帖子..." onkeypress="handleSearch(event)">
+      </div>
+
+      <div class="navbar-actions">
+        <div class="navbar-user" data-dropdown>
+          <button class="navbar-user-btn" data-dropdown-trigger>
+            <img src="" alt="Avatar" class="avatar avatar-sm" id="navAvatar">
+            <span class="navbar-user-name" id="navUsername">用户</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div class="navbar-dropdown">
+            <a href="profile.html" class="navbar-dropdown-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              个人主页
+            </a>
+            <a href="profile-edit.html" class="navbar-dropdown-item active">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              编辑资料
+            </a>
+            <a href="password-change.html" class="navbar-dropdown-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              修改密码
+            </a>
+            <div class="navbar-dropdown-divider" id="adminDivider" style="display: none;"></div>
+            <a href="../admin/dashboard.html" class="navbar-dropdown-item" id="adminLink" style="display: none;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              管理后台
+            </a>
+            <div class="navbar-dropdown-divider"></div>
+            <a href="#" class="navbar-dropdown-item" onclick="logout()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              退出登录
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="page-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-sticky">
+          <div class="sidebar-section">
+            <div class="sidebar-section-header">板块分类</div>
+            <ul class="sidebar-menu">
+              <li class="sidebar-menu-item">
+                <a href="home.html#all" class="sidebar-menu-link">
+                  <span class="sidebar-menu-icon">
+                    <img src="https://api.iconify.design/mdi:view-grid.svg?color=%231976D2&width=32" alt="全部">
+                  </span>
+                  <span class="sidebar-menu-text">全部</span>
+                </a>
+              </li>
+              <li class="sidebar-menu-item">
+                <a href="home.html#tech" class="sidebar-menu-link">
+                  <span class="sidebar-menu-icon">
+                    <img src="https://api.iconify.design/mdi:code-braces.svg?color=%231976D2&width=32" alt="技术交流">
+                  </span>
+                  <span class="sidebar-menu-text">技术交流</span>
+                </a>
+              </li>
+              <li class="sidebar-menu-item">
+                <a href="home.html#design" class="sidebar-menu-link">
+                  <span class="sidebar-menu-icon">
+                    <img src="https://api.iconify.design/mdi:palette.svg?color=%23FF6F00&width=32" alt="设计分享">
+                  </span>
+                  <span class="sidebar-menu-text">设计分享</span>
+                </a>
+              </li>
+              <li class="sidebar-menu-item">
+                <a href="home.html#discuss" class="sidebar-menu-link">
+                  <span class="sidebar-menu-icon">
+                    <img src="https://api.iconify.design/mdi:forum.svg?color=%234CAF50&width=32" alt="综合讨论">
+                  </span>
+                  <span class="sidebar-menu-text">综合讨论</span>
+                </a>
+              </li>
+              <li class="sidebar-menu-item">
+                <a href="home.html#question" class="sidebar-menu-link">
+                  <span class="sidebar-menu-icon">
+                    <img src="https://api.iconify.design/mdi:help-circle.svg?color=%239C27B0&width=32" alt="问答求助">
+                  </span>
+                  <span class="sidebar-menu-text">问答求助</span>
+                </a>
+              </li>
+              <li class="sidebar-menu-item">
+                <a href="home.html#share" class="sidebar-menu-link">
+                  <span class="sidebar-menu-icon">
+                    <img src="https://api.iconify.design/mdi:share-variant.svg?color=%23FF9800&width=32" alt="资源分享">
+                  </span>
+                  <span class="sidebar-menu-text">资源分享</span>
+                </a>
+              </li>
+              <li class="sidebar-menu-item">
+                <a href="home.html#announce" class="sidebar-menu-link">
+                  <span class="sidebar-menu-icon">
+                    <img src="https://api.iconify.design/mdi:bullhorn.svg?color=%23F44336&width=32" alt="公告通知">
+                  </span>
+                  <span class="sidebar-menu-text">公告通知</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content Area -->
+      <div class="main-content-area">
+      <div class="edit-container">
+        <div class="edit-header">
+          <h1 class="edit-title">编辑资料</h1>
+          <p class="edit-description">更新你的个人信息和头像</p>
+        </div>
+
+        <!-- Avatar Section -->
+        <div class="avatar-section">
+          <div class="avatar-preview">
+            <img src="" alt="Avatar" id="avatarPreview">
+          </div>
+          <div class="avatar-info">
+            <h3>头像</h3>
+            <p>支持 JPG、PNG 格式，文件大小不超过 2MB</p>
+            <div class="avatar-actions">
+              <button type="button" class="btn btn-primary btn-sm" onclick="uploadAvatar()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                上传头像
+              </button>
+              <button type="button" class="btn btn-text btn-sm" onclick="removeAvatar()">删除</button>
+            </div>
+          </div>
+        </div>
+
+        <form id="profileForm">
+          <!-- Basic Info -->
+          <div class="form-section">
+            <h2 class="section-title">基本信息</h2>
+            
+            <div class="form-group">
+              <label class="form-label" for="nickname">昵称</label>
+              <input 
+                type="text" 
+                id="nickname" 
+                class="form-input" 
+                placeholder="请输入昵称"
+                required
+                maxlength="20"
+                oninput="updateCharCount('nickname', 20)"
+              >
+              <div class="char-count">
+                <span id="nickname-count">0</span> / 20
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="username">用户名</label>
+              <input 
+                type="text" 
+                id="username" 
+                class="form-input" 
+                placeholder="用户名"
+                disabled
+              >
+              <p class="form-hint">用户名不可修改</p>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="email">邮箱</label>
+              <input 
+                type="email" 
+                id="email" 
+                class="form-input" 
+                placeholder="请输入邮箱地址"
+              >
+            </div>
+          </div>
+
+          <!-- About -->
+          <div class="form-section">
+            <h2 class="section-title">个人简介</h2>
+            
+            <div class="form-group">
+              <label class="form-label" for="bio">简介</label>
+              <textarea 
+                id="bio" 
+                class="form-textarea" 
+                placeholder="介绍一下你自己..."
+                rows="4"
+                maxlength="200"
+                oninput="updateCharCount('bio', 200)"
+              ></textarea>
+              <div class="char-count">
+                <span id="bio-count">0</span> / 200
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="button" class="btn btn-text" onclick="window.history.back()">取消</button>
+            <button type="submit" class="btn btn-primary">保存更改</button>
+          </div>
+        </form>
+      </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Sidebar Toggle (Mobile) -->
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <script src="../js/common.js"></script>
+  <script>
+    // Check authentication
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser) {
+      window.location.href = 'login.html';
+    }
+
+    // Update navbar with user info
+    document.getElementById('navAvatar').src = currentUser.avatar;
+    document.getElementById('navUsername').textContent = currentUser.nickname;
+
+    // Show admin link if user is admin
+    if (currentUser.role === 'admin') {
+      document.getElementById('adminLink').style.display = 'flex';
+      document.getElementById('adminDivider').style.display = 'block';
+    }
+
+    // Load current user data
+    document.getElementById('avatarPreview').src = currentUser.avatar;
+    document.getElementById('nickname').value = currentUser.nickname || '';
+    document.getElementById('username').value = currentUser.username || '';
+    document.getElementById('email').value = currentUser.email || '';
+    document.getElementById('bio').value = currentUser.bio || '';
+
+    // Update character counts
+    updateCharCount('nickname', 20);
+    updateCharCount('bio', 200);
+
+    // Update character count
+    function updateCharCount(fieldId, maxLength) {
+      const field = document.getElementById(fieldId);
+      const count = document.getElementById(`${fieldId}-count`);
+      count.textContent = field.value.length;
+      
+      if (field.value.length >= maxLength) {
+        count.style.color = 'var(--error)';
+      } else {
+        count.style.color = 'var(--text-secondary)';
+      }
+    }
+
+    // Upload avatar
+    function uploadAvatar() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/jpeg,image/png';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          if (file.size > 2 * 1024 * 1024) {
+            showToast('文件大小不能超过 2MB', 'error');
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            document.getElementById('avatarPreview').src = event.target.result;
+            showToast('头像已更新', 'success');
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+      input.click();
+    }
+
+    // Remove avatar
+    function removeAvatar() {
+      showConfirm('确定要删除头像吗？', () => {
+        document.getElementById('avatarPreview').src = `https://ui-avatars.com/api/?name=${currentUser.nickname}&background=1976D2&color=fff`;
+        showToast('头像已删除', 'success');
+      });
+    }
+
+    // Handle form submission
+    document.getElementById('profileForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const nickname = document.getElementById('nickname').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const bio = document.getElementById('bio').value.trim();
+
+      if (!nickname) {
+        showToast('请输入昵称', 'warning');
+        return;
+      }
+
+      if (email && !isValidEmail(email)) {
+        showToast('请输入有效的邮箱地址', 'warning');
+        return;
+      }
+
+      // Update user data
+      currentUser.nickname = nickname;
+      currentUser.email = email;
+      currentUser.bio = bio;
+      currentUser.avatar = document.getElementById('avatarPreview').src;
+
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+      showToast('资料更新成功！', 'success');
+      setTimeout(() => {
+        window.location.href = 'profile.html';
+      }, 1000);
+    });
+
+    // Validation helpers
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function handleSearch(event) {
+      if (event.key === 'Enter') {
+        const query = event.target.value;
+        if (query.trim()) {
+          window.location.href = `search.html?q=${encodeURIComponent(query)}`;
+        }
+      }
+    }
+
+    // Toggle mobile sidebar
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+    }
+
+    function logout() {
+      showConfirm('确定要退出登录吗？', () => {
+        localStorage.removeItem('currentUser');
+        window.location.href = 'login.html';
+      });
+    }
+  </script>
+</body>
+</html>

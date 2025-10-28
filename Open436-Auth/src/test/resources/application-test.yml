@@ -1,0 +1,40 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/open436
+    username: postgres
+    password: Shicong666
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false  # 测试时不打印SQL
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+
+  data:
+    redis:
+      host: localhost
+      port: 16379
+      password:
+      timeout: 3000ms
+
+# Sa-Token 测试配置
+sa-token:
+  token-name: token
+  timeout: 2592000
+  active-timeout: -1
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: false
+  auto-renew: true
+
+logging:
+  level:
+    com.open436.auth: INFO
+    cn.dev33.satoken: WARN
+    org.springframework: WARN
+

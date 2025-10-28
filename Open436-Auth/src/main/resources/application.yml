@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: Open436-Auth
+  profiles:
+    active: dev # 默认使用开发环境
+
+server:
+  port: 8081
+
+# Sa-Token 配置（所有环境共用）
+sa-token:
+  token-name: token
+  timeout: 2592000
+  active-timeout: -1
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: false
+  auto-renew: true
+
+# Kong 网关配置
+kong:
+  gateway:
+    url: http://kong:8000
+
+# 安全配置
+security:
+  max-login-attempts: 5
+  account-lock-duration: 3600
+
+# CORS 配置
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:8080
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: Authorization,Content-Type
+  allow-credentials: true

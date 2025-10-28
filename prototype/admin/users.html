@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户管理 - Open436 论坛</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    body {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .main-container {
+      flex: 1;
+      margin-left: 260px;
+      background: var(--background-secondary);
+    }
+
+    .admin-header {
+      height: 64px;
+      background: var(--background);
+      border-bottom: 1px solid var(--divider);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-xl);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .admin-header-title {
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    .admin-content {
+      padding: var(--space-xl);
+    }
+
+    .content-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-lg);
+      gap: var(--space-base);
+    }
+
+    .search-box {
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .data-table {
+      background: var(--background);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: var(--background-secondary);
+    }
+
+    th {
+      padding: var(--space-base);
+      text-align: left;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--divider);
+    }
+
+    td {
+      padding: var(--space-base);
+      border-bottom: 1px solid var(--divider);
+      font-size: 14px;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: var(--background-secondary);
+    }
+
+    .user-cell {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .user-name {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .user-username {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .table-actions {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-top: var(--space-lg);
+    }
+
+    .pagination-btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--divider);
+      background: var(--background);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-size: 14px;
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .pagination-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 959px) {
+      .main-container {
+        margin-left: 0;
+      }
+
+      .data-table {
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Container -->
+  <div id="admin-sidebar-container"></div>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    <!-- Header -->
+    <header class="admin-header">
+      <h1 class="admin-header-title">用户管理</h1>
+      <div class="admin-user">
+        <img src="" alt="Avatar" class="avatar avatar-sm" id="adminAvatar">
+        <span id="adminName">管理员</span>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="admin-content">
+      <div class="content-toolbar">
+        <div class="search-box">
+          <input type="text" class="form-input" placeholder="搜索用户..." id="searchInput">
+        </div>
+        <button class="btn btn-primary" onclick="createUser()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          创建用户
+        </button>
+      </div>
+
+      <div class="data-table">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>用户</th>
+              <th>角色</th>
+              <th>状态</th>
+              <th>注册时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <!-- Users will be loaded here -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <button class="pagination-btn" onclick="changePage(-1)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button class="pagination-btn active">1</button>
+        <button class="pagination-btn">2</button>
+        <button class="pagination-btn">3</button>
+        <button class="pagination-btn" onclick="changePage(1)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/common.js"></script>
+  <script src="components/sidebar.js"></script>
+  <script>
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser || currentUser.role !== 'admin') {
+      window.location.href = '../pages/home.html';
+    }
+
+    // Initialize sidebar
+    initAdminSidebar('users');
+
+    document.getElementById('adminAvatar').src = currentUser.avatar;
+    document.getElementById('adminName').textContent = currentUser.nickname;
+
+    // Mock users data
+    const mockUsers = [
+      {
+        id: 1,
+        username: 'admin',
+        nickname: '管理员',
+        avatar: 'https://ui-avatars.com/api/?name=Admin&background=1976D2&color=fff',
+        role: 'admin',
+        status: 'active',
+        createdAt: '2024-01-15'
+      },
+      {
+        id: 2,
+        username: 'developer',
+        nickname: '前端开发者',
+        avatar: 'https://ui-avatars.com/api/?name=Dev&background=4CAF50&color=fff',
+        role: 'user',
+        status: 'active',
+        createdAt: '2024-02-20'
+      },
+      {
+        id: 3,
+        username: 'designer',
+        nickname: 'UI设计师',
+        avatar: 'https://ui-avatars.com/api/?name=UI&background=FF6F00&color=fff',
+        role: 'user',
+        status: 'active',
+        createdAt: '2024-03-10'
+      },
+      {
+        id: 4,
+        username: 'backend',
+        nickname: '后端工程师',
+        avatar: 'https://ui-avatars.com/api/?name=BE&background=9C27B0&color=fff',
+        role: 'user',
+        status: 'active',
+        createdAt: '2024-04-05'
+      },
+      {
+        id: 5,
+        username: 'tester',
+        nickname: '测试工程师',
+        avatar: 'https://ui-avatars.com/api/?name=QA&background=FF5722&color=fff',
+        role: 'user',
+        status: 'disabled',
+        createdAt: '2024-05-12'
+      }
+    ];
+
+    function loadUsers() {
+      const tbody = document.getElementById('userTableBody');
+      tbody.innerHTML = mockUsers.map(user => `
+        <tr>
+          <td>${user.id}</td>
+          <td>
+            <div class="user-cell">
+              <img src="${user.avatar}" alt="${user.nickname}" class="avatar avatar-sm">
+              <div class="user-info">
+                <div class="user-name">${user.nickname}</div>
+                <div class="user-username">@${user.username}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="badge ${user.role === 'admin' ? 'badge-primary' : ''}">${user.role === 'admin' ? '管理员' : '普通用户'}</span>
+          </td>
+          <td>
+            <span class="badge ${user.status === 'active' ? 'badge-success' : 'badge-error'}">${user.status === 'active' ? '启用' : '禁用'}</span>
+          </td>
+          <td>${user.createdAt}</td>
+          <td>
+            <div class="table-actions">
+              <button class="btn btn-sm btn-text" onclick="editUser(${user.id})">编辑</button>
+              <button class="btn btn-sm btn-text" onclick="resetPassword(${user.id})">重置密码</button>
+              <button class="btn btn-sm btn-text" onclick="toggleUserStatus(${user.id})">${user.status === 'active' ? '禁用' : '启用'}</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function createUser() {
+      showToast('创建用户功能开发中...', 'info');
+    }
+
+    function editUser(userId) {
+      showToast(`编辑用户 ${userId}`, 'info');
+    }
+
+    function resetPassword(userId) {
+      showConfirm('确定要重置该用户的密码吗？', () => {
+        showToast('密码已重置为默认密码', 'success');
+      });
+    }
+
+    function toggleUserStatus(userId) {
+      const user = mockUsers.find(u => u.id === userId);
+      const action = user.status === 'active' ? '禁用' : '启用';
+      
+      showConfirm(`确定要${action}该用户吗？`, () => {
+        user.status = user.status === 'active' ? 'disabled' : 'active';
+        loadUsers();
+        showToast(`用户已${action}`, 'success');
+      });
+    }
+
+    function changePage(direction) {
+      showToast('分页功能开发中...', 'info');
+    }
+
+    loadUsers();
+  </script>
+</body>
+</html>

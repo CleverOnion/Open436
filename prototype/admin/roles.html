@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>角色权限管理 - Open436 论坛</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    body {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      padding: var(--space-xl);
+      background: var(--background-secondary);
+    }
+
+    .page-header {
+      margin-bottom: var(--space-xl);
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .page-description {
+      color: var(--text-secondary);
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-lg);
+    }
+
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: var(--space-lg);
+      margin-bottom: var(--space-xl);
+    }
+
+    .role-card {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .role-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .role-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-base);
+    }
+
+    .role-info {
+      flex: 1;
+    }
+
+    .role-name {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .role-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .role-badge {
+      padding: 4px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .role-badge.admin {
+      background: rgba(244, 67, 54, 0.1);
+      color: var(--error);
+    }
+
+    .role-badge.moderator {
+      background: rgba(255, 152, 0, 0.1);
+      color: var(--warning);
+    }
+
+    .role-badge.user {
+      background: rgba(76, 175, 80, 0.1);
+      color: var(--success);
+    }
+
+    .role-stats {
+      display: flex;
+      gap: var(--space-lg);
+      padding: var(--space-base) 0;
+      margin: var(--space-base) 0;
+      border-top: 1px solid var(--divider);
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .permissions-section {
+      margin-top: var(--space-base);
+    }
+
+    .permissions-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .permissions-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+    }
+
+    .permission-tag {
+      padding: 4px 8px;
+      background: var(--background-secondary);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .role-actions {
+      display: flex;
+      gap: var(--space-sm);
+      margin-top: var(--space-base);
+    }
+
+    .permissions-table {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .permissions-table h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: var(--space-lg);
+    }
+
+    .permission-group {
+      margin-bottom: var(--space-xl);
+    }
+
+    .permission-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .permission-group-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-base);
+      padding-bottom: var(--space-sm);
+      border-bottom: 2px solid var(--divider);
+    }
+
+    .permission-items {
+      display: grid;
+      gap: var(--space-sm);
+    }
+
+    .permission-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-sm);
+      border-radius: var(--radius-sm);
+      transition: background var(--transition-fast);
+    }
+
+    .permission-item:hover {
+      background: var(--background-secondary);
+    }
+
+    .permission-info {
+      flex: 1;
+    }
+
+    .permission-name {
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .permission-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .permission-roles {
+      display: flex;
+      gap: var(--space-xs);
+    }
+
+    .permission-checkbox {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 959px) {
+      .main-content {
+        margin-left: 0;
+      }
+
+      .roles-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Container -->
+  <div id="admin-sidebar-container"></div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">角色权限管理</h1>
+      <p class="page-description">配置系统角色和权限（RBAC）</p>
+    </div>
+
+    <div class="toolbar">
+      <h2 style="font-size: 18px; font-weight: 600;">系统角色</h2>
+      <button class="btn btn-primary" onclick="addRole()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; margin-right: 8px;">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        添加角色
+      </button>
+    </div>
+
+    <div class="roles-grid" id="rolesGrid">
+      <!-- Roles will be loaded here -->
+    </div>
+
+    <div class="permissions-table">
+      <h2>权限配置矩阵</h2>
+      
+      <div class="permission-group">
+        <div class="permission-group-title">内容管理</div>
+        <div class="permission-items">
+          <div class="permission-item">
+            <div class="permission-info">
+              <div class="permission-name">查看帖子</div>
+              <div class="permission-desc">可以查看所有帖子内容</div>
+            </div>
+            <div class="permission-roles">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="管理员">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="版主">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="用户">
+            </div>
+          </div>
+          <div class="permission-item">
+            <div class="permission-info">
+              <div class="permission-name">发布帖子</div>
+              <div class="permission-desc">可以发布新帖子</div>
+            </div>
+            <div class="permission-roles">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="管理员">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="版主">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="用户">
+            </div>
+          </div>
+          <div class="permission-item">
+            <div class="permission-info">
+              <div class="permission-name">编辑帖子</div>
+              <div class="permission-desc">可以编辑自己的帖子</div>
+            </div>
+            <div class="permission-roles">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="管理员">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="版主">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="用户">
+            </div>
+          </div>
+          <div class="permission-item">
+            <div class="permission-info">
+              <div class="permission-name">删除帖子</div>
+              <div class="permission-desc">可以删除任意帖子</div>
+            </div>
+            <div class="permission-roles">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="管理员">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="版主">
+              <input type="checkbox" class="permission-checkbox" disabled title="用户">
+            </div>
+          </div>
+          <div class="permission-item">
+            <div class="permission-info">
+              <div class="permission-name">置顶帖子</div>
+              <div class="permission-desc">可以将帖子置顶</div>
+            </div>
+            <div class="permission-roles">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="管理员">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="版主">
+              <input type="checkbox" class="permission-checkbox" disabled title="用户">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="permission-group">
+        <div class="permission-group-title">用户管理</div>
+        <div class="permission-items">
+          <div class="permission-item">
+            <div class="permission-info">
+              <div class="permission-name">查看用户</div>
+              <div class="permission-desc">可以查看用户列表和资料</div>
+            </div>
+            <div class="permission-roles">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="管理员">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="版主">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="用户">
+            </div>
+          </div>
+          <div class="permission-item">
+            <div class="permission-info">
+              <div class="permission-name">编辑用户</div>
+              <div class="permission-desc">可以编辑用户信息</div>
+            </div>
+            <div class="permission-roles">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="管理员">
+              <input type="checkbox" class="permission-checkbox" disabled title="版主">
+              <input type="checkbox" class="permission-checkbox" disabled title="用户">
+            </div>
+          </div>
+          <div class="permission-item">
+            <div class="permission-info">
+              <div class="permission-name">封禁用户</div>
+              <div class="permission-desc">可以封禁违规用户</div>
+            </div>
+            <div class="permission-roles">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="管理员">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="版主">
+              <input type="checkbox" class="permission-checkbox" disabled title="用户">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="permission-group">
+        <div class="permission-group-title">系统管理</div>
+        <div class="permission-items">
+          <div class="permission-item">
+            <div class="permission-info">
+              <div class="permission-name">板块管理</div>
+              <div class="permission-desc">可以创建、编辑、删除板块</div>
+            </div>
+            <div class="permission-roles">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="管理员">
+              <input type="checkbox" class="permission-checkbox" disabled title="版主">
+              <input type="checkbox" class="permission-checkbox" disabled title="用户">
+            </div>
+          </div>
+          <div class="permission-item">
+            <div class="permission-info">
+              <div class="permission-name">角色管理</div>
+              <div class="permission-desc">可以配置角色和权限</div>
+            </div>
+            <div class="permission-roles">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="管理员">
+              <input type="checkbox" class="permission-checkbox" disabled title="版主">
+              <input type="checkbox" class="permission-checkbox" disabled title="用户">
+            </div>
+          </div>
+          <div class="permission-item">
+            <div class="permission-info">
+              <div class="permission-name">系统设置</div>
+              <div class="permission-desc">可以修改系统配置</div>
+            </div>
+            <div class="permission-roles">
+              <input type="checkbox" class="permission-checkbox" checked disabled title="管理员">
+              <input type="checkbox" class="permission-checkbox" disabled title="版主">
+              <input type="checkbox" class="permission-checkbox" disabled title="用户">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/common.js"></script>
+  <script src="components/sidebar.js"></script>
+  <script>
+    // Check admin permission
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser || currentUser.role !== 'admin') {
+      window.location.href = '../pages/home.html';
+    }
+
+    // Initialize sidebar
+    initAdminSidebar('roles');
+
+    // Mock roles data
+    const roles = [
+      {
+        id: 'admin',
+        name: '管理员',
+        slug: 'admin',
+        description: '拥有系统所有权限',
+        type: 'admin',
+        users: 3,
+        permissions: ['all'],
+        permissionCount: 15,
+        createdAt: '2024-01-01'
+      },
+      {
+        id: 'moderator',
+        name: '版主',
+        slug: 'moderator',
+        description: '负责内容审核和用户管理',
+        type: 'moderator',
+        users: 12,
+        permissions: ['manage_posts', 'manage_comments', 'ban_users', 'pin_posts'],
+        permissionCount: 8,
+        createdAt: '2024-01-01'
+      },
+      {
+        id: 'user',
+        name: '普通用户',
+        slug: 'user',
+        description: '论坛的基本用户角色',
+        type: 'user',
+        users: 1234,
+        permissions: ['view_posts', 'create_posts', 'edit_own_posts', 'create_comments'],
+        permissionCount: 5,
+        createdAt: '2024-01-01'
+      }
+    ];
+
+    function renderRoles() {
+      const grid = document.getElementById('rolesGrid');
+      
+      grid.innerHTML = roles.map(role => `
+        <div class="role-card">
+          <div class="role-header">
+            <div class="role-info">
+              <div class="role-name">${role.name}</div>
+              <div class="role-description">${role.description}</div>
+            </div>
+            <span class="role-badge ${role.type}">${role.type === 'admin' ? '系统' : role.type === 'moderator' ? '管理' : '默认'}</span>
+          </div>
+
+          <div class="role-stats">
+            <div class="stat-item">
+              <div class="stat-value">${role.users}</div>
+              <div class="stat-label">用户数</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">${role.permissionCount}</div>
+              <div class="stat-label">权限数</div>
+            </div>
+          </div>
+
+          <div class="permissions-section">
+            <div class="permissions-title">主要权限</div>
+            <div class="permissions-list">
+              ${role.permissions.slice(0, 4).map(p => `
+                <span class="permission-tag">${getPermissionName(p)}</span>
+              `).join('')}
+              ${role.permissions.length > 4 ? `<span class="permission-tag">+${role.permissions.length - 4}</span>` : ''}
+            </div>
+          </div>
+
+          <div class="role-actions">
+            <button class="btn btn-sm btn-text" onclick="viewRole('${role.id}')">查看详情</button>
+            ${role.type !== 'admin' && role.type !== 'user' ? `
+              <button class="btn btn-sm btn-text" onclick="editRole('${role.id}')">编辑</button>
+              <button class="btn btn-sm btn-text" style="color: var(--error);" onclick="deleteRole('${role.id}')">删除</button>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function getPermissionName(permission) {
+      const names = {
+        all: '所有权限',
+        manage_posts: '管理帖子',
+        manage_comments: '管理评论',
+        ban_users: '封禁用户',
+        pin_posts: '置顶帖子',
+        view_posts: '查看帖子',
+        create_posts: '发布帖子',
+        edit_own_posts: '编辑帖子',
+        create_comments: '发表评论'
+      };
+      return names[permission] || permission;
+    }
+
+    function addRole() {
+      showAlert('添加角色功能开发中...');
+    }
+
+    function viewRole(id) {
+      const role = roles.find(r => r.id === id);
+      if (role) {
+        showAlert(`角色详情\n\n名称：${role.name}\n描述：${role.description}\n用户数：${role.users}\n权限数：${role.permissionCount}`);
+      }
+    }
+
+    function editRole(id) {
+      const role = roles.find(r => r.id === id);
+      if (role) {
+        showAlert(`编辑角色：${role.name}`);
+      }
+    }
+
+    function deleteRole(id) {
+      showConfirm('确定要删除这个角色吗？', () => {
+        const index = roles.findIndex(r => r.id === id);
+        if (index > -1) {
+          roles.splice(index, 1);
+          renderRoles();
+          showToast('角色已删除', 'success');
+        }
+      });
+    }
+
+    // Initialize
+    renderRoles();
+  </script>
+</body>
+</html>
