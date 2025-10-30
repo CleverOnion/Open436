@@ -1,8 +1,8 @@
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/open436
-    username: postgres
-    password: ${DB_PASSWORD:Shicong666}
+    username: open436
+    password: ${DB_PASSWORD:open436}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -17,7 +17,7 @@ spring:
   data:
     redis:
       host: localhost
-      port: 16379
+      port: 6379
       password:
       timeout: 3000ms
 
