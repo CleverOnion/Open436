@@ -47,12 +47,20 @@ function SaTokenAuthHandler:access(conf)
     return kong.response.exit(401, { message = "Token verification failed" })
   end
   
-  -- 4. 注入用户信息到 Header
-  kong.service.request.set_header("X-User-Id", tostring(body.data.userId))
-  kong.service.request.set_header("X-Username", body.data.username)
-  kong.service.request.set_header("X-Role", body.data.role)
+  -- 4. 注入用户信息到 Header (注意数据结构是嵌套的 body.data.data)
+  local userData = body.data.data or body.data
+  kong.service.request.set_header("X-User-Id", tostring(userData.userId))
   
-  kong.log.info("User authenticated: ", body.data.username)
+  -- 只有当字段存在时才设置 header
+  if userData.username then
+    kong.service.request.set_header("X-Username", userData.username)
+  end
+  if userData.role then
+    kong.service.request.set_header("X-Role", userData.role)
+    kong.service.request.set_header("X-User-Role", userData.role)  -- M7 expects X-User-Role
+  end
+  
+  kong.log.info("User authenticated: ", userData.username or "unknown", " role: ", userData.role or "none")
 end
 
 return SaTokenAuthHandler

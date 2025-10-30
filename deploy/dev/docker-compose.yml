@@ -6,7 +6,7 @@ version: '3.8'
 services:
   # Consul 服务注册中心
   consul:
-    image: consul:1.17
+    image: hashicorp/consul:1.17
     container_name: open436-consul-dev
     ports:
       - "8500:8500"    # HTTP API + UI
@@ -26,7 +26,7 @@ services:
       POSTGRES_PASSWORD: open436
       POSTGRES_DB: open436
     ports:
-      - "5432:5432"
+      - "55432:5432"
     networks:
       - open436-dev-network
     volumes:
@@ -100,13 +100,13 @@ services:
       KONG_PG_HOST: kong-database
       KONG_PG_USER: kong
       KONG_PG_PASSWORD: kong
+      KONG_PLUGINS: bundled,satoken-auth
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_ADMIN_LISTEN: 0.0.0.0:8001
-      # 使用 Google DNS，避免依赖 Consul DNS
-      KONG_DNS_RESOLVER: 8.8.8.8
+      # 注：移除自定义 DNS，使用 Docker 内置 DNS 以解析容器名（如 kong-database）
     ports:
       - "8000:8000"  # Proxy
       - "8443:8443"  # Proxy SSL
@@ -120,8 +120,8 @@ services:
       # Windows Docker Desktop 特性：允许容器访问宿主机
       - "host.docker.internal:host-gateway"
     volumes:
-      # 注意：相对路径基于 deploy/dev 目录
-      - ./kong/plugins:/usr/local/share/lua/5.1/kong/plugins/custom
+      # 注意：仅挂载自定义插件子目录，避免覆盖内置 bundled 插件
+      - ./kong/plugins/satoken-auth:/usr/local/share/lua/5.1/kong/plugins/satoken-auth
 
 volumes:
   consul-dev-data:

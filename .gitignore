@@ -1,0 +1,92 @@
+# ============================================
+# Open436 Project .gitignore
+# ============================================
+
+# Compiled outputs
+**/target/
+*.class
+*.jar
+*.war
+*.exe
+*.pdb
+*.dll
+*.so
+*.dylib
+
+# Build directories
+build/
+dist/
+out/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.project
+.classpath
+.settings/
+*.swp
+*.swo
+*~
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Package managers
+node_modules/
+.npm/
+.yarn/
+.pnpm-store/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Rust
+Cargo.lock
+.sqlx/
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# Test outputs
+coverage/
+*.test
+test-results/
+
+# Local storage
+storage/
+uploads/
+

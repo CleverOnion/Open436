@@ -49,16 +49,17 @@ Start-Sleep -Seconds 1
 # 1. 创建 M1 认证服务
 Write-Host "Step 1: Creating auth-service..." -ForegroundColor Cyan
 try {
-    $authService = Invoke-RestMethod -Uri "$KONG_ADMIN/services" -Method Post -Body @{
-        name = "auth-service"
-        url = "http://$HOST_ADDR:8081"
-    }
+    $authServiceBody = @{ 
+        name = "auth-service";
+        protocol = "http";
+        host = $HOST_ADDR;
+        port = 8081
+    } | ConvertTo-Json
+    $authService = Invoke-RestMethod -Uri "$KONG_ADMIN/services" -Method Post -ContentType 'application/json' -Body $authServiceBody
     Write-Host "✓ auth-service created" -ForegroundColor Green
 
-    $authRoute = Invoke-RestMethod -Uri "$KONG_ADMIN/services/auth-service/routes" -Method Post -Body @{
-        "paths[]" = "/api/auth"
-        strip_path = $false
-    }
+    $authRouteBody = @{ paths = @("/api/auth"); strip_path = $false } | ConvertTo-Json
+    $authRoute = Invoke-RestMethod -Uri "$KONG_ADMIN/services/auth-service/routes" -Method Post -ContentType 'application/json' -Body $authRouteBody
     Write-Host "✓ auth-service route created" -ForegroundColor Green
 } catch {
     Write-Host "ERROR creating auth-service: $_" -ForegroundColor Red
@@ -69,16 +70,17 @@ Write-Host ""
 # 2. 创建 M7 文件服务
 Write-Host "Step 2: Creating file-service..." -ForegroundColor Cyan
 try {
-    $fileService = Invoke-RestMethod -Uri "$KONG_ADMIN/services" -Method Post -Body @{
-        name = "file-service"
-        url = "http://$HOST_ADDR:8007"
-    }
+    $fileServiceBody = @{ 
+        name = "file-service";
+        protocol = "http";
+        host = $HOST_ADDR;
+        port = 8007
+    } | ConvertTo-Json
+    $fileService = Invoke-RestMethod -Uri "$KONG_ADMIN/services" -Method Post -ContentType 'application/json' -Body $fileServiceBody
     Write-Host "✓ file-service created" -ForegroundColor Green
 
-    $fileRoute = Invoke-RestMethod -Uri "$KONG_ADMIN/services/file-service/routes" -Method Post -Body @{
-        "paths[]" = "/api/files"
-        strip_path = $false
-    }
+    $fileRouteBody = @{ paths = @("/api/files"); strip_path = $false } | ConvertTo-Json
+    $fileRoute = Invoke-RestMethod -Uri "$KONG_ADMIN/services/file-service/routes" -Method Post -ContentType 'application/json' -Body $fileRouteBody
     Write-Host "✓ file-service route created" -ForegroundColor Green
 } catch {
     Write-Host "ERROR creating file-service: $_" -ForegroundColor Red
@@ -89,10 +91,8 @@ Write-Host ""
 # 3. 启用 Sa-Token 认证插件
 Write-Host "Step 3: Enabling satoken-auth plugin..." -ForegroundColor Cyan
 try {
-    $plugin = Invoke-RestMethod -Uri "$KONG_ADMIN/services/file-service/plugins" -Method Post -Body @{
-        name = "satoken-auth"
-        "config.auth_service_url" = "http://$HOST_ADDR:8081"
-    }
+    $pluginBody = @{ name = "satoken-auth"; config = @{ auth_service_url = "http://$HOST_ADDR:8081" } } | ConvertTo-Json -Depth 5
+    $plugin = Invoke-RestMethod -Uri "$KONG_ADMIN/services/file-service/plugins" -Method Post -ContentType 'application/json' -Body $pluginBody
     Write-Host "✓ satoken-auth plugin enabled" -ForegroundColor Green
 } catch {
     Write-Host "ERROR enabling plugin: $_" -ForegroundColor Red
