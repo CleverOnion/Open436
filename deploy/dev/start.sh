@@ -7,6 +7,46 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# 端口占用检查（TCP 与 UDP）
+TCP_PORTS=(8500 5432 5433 6379 9000 9001 8000 8443 8001)
+UDP_PORTS=(8600)
+
+have_cmd() { command -v "$1" >/dev/null 2>&1; }
+
+check_tcp_port() {
+  local p="$1"
+  if have_cmd lsof; then
+    lsof -nP -iTCP:"$p" -sTCP:LISTEN >/dev/null 2>&1
+  else
+    # 兼容 Git Bash/Windows 的 netstat 输出
+    netstat -an | grep -E "[:\.]${p}[[:space:]]" | grep -i LISTEN >/dev/null 2>&1
+  fi
+}
+
+check_udp_port() {
+  local p="$1"
+  if have_cmd lsof; then
+    lsof -nP -iUDP:"$p" >/dev/null 2>&1
+  else
+    netstat -an | grep -i udp | grep -E "[:\.]${p}[[:space:]]" >/dev/null 2>&1
+  fi
+}
+
+conflicts=()
+for p in "${TCP_PORTS[@]}"; do
+  if check_tcp_port "$p"; then conflicts+=("TCP:$p"); fi
+done
+for p in "${UDP_PORTS[@]}"; do
+  if check_udp_port "$p"; then conflicts+=("UDP:$p"); fi
+done
+
+if [ "${#conflicts[@]}" -gt 0 ]; then
+  echo "检测到端口被占用，请释放以下端口后重试:" >&2
+  for c in "${conflicts[@]}"; do echo "  $c" >&2; done
+  echo "脚本已终止以避免冲突。" >&2
+  exit 1
+fi
+
 echo "========================================="
 echo "Starting Open436 Development Environment"
 echo "========================================="
