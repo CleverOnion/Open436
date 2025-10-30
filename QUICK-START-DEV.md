@@ -162,9 +162,7 @@ curl http://localhost:8001/services | grep host.docker.internal
 
 ## 📚 详细文档
 
-- [完整开发指南](./DEVELOPMENT-GUIDE.md)
-- [部署指南](./DEPLOYMENT-GUIDE.md)
-- [Consul + Kong 架构](./README-CONSUL-KONG.md)
+- [完整文档索引](./docs/README.md)
 
 ---
 
