@@ -1,0 +1,53 @@
+# Git
+.git
+.gitignore
+
+# Docs
+docs/
+README.md
+*.md
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Logs
+*.log
+
+# Temp
+tmp/
+temp/
+.cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log
+
+# Rust
+target/
+Cargo.lock
+
+# Java
+target/
+*.class
+*.jar
+!Open436-Auth/target/Open436-Auth-0.0.1-SNAPSHOT.jar
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.env
+venv/
+

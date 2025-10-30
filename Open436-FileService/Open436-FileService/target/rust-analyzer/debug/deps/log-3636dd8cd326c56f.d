@@ -1,0 +1,10 @@
+F:\code\new\Open436\Open436-FileService\Open436-FileService/target/rust-analyzer\debug\deps\log-3636dd8cd326c56f.d: C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\log-0.4.28\src\lib.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\log-0.4.28\src\macros.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\log-0.4.28\src\serde.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\log-0.4.28\src\__private_api.rs
+
+F:\code\new\Open436\Open436-FileService\Open436-FileService/target/rust-analyzer\debug\deps\liblog-3636dd8cd326c56f.rlib: C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\log-0.4.28\src\lib.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\log-0.4.28\src\macros.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\log-0.4.28\src\serde.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\log-0.4.28\src\__private_api.rs
+
+F:\code\new\Open436\Open436-FileService\Open436-FileService/target/rust-analyzer\debug\deps\liblog-3636dd8cd326c56f.rmeta: C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\log-0.4.28\src\lib.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\log-0.4.28\src\macros.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\log-0.4.28\src\serde.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\log-0.4.28\src\__private_api.rs
+
+C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\log-0.4.28\src\lib.rs:
+C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\log-0.4.28\src\macros.rs:
+C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\log-0.4.28\src\serde.rs:
+C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\log-0.4.28\src\__private_api.rs:

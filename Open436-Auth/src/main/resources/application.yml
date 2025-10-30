@@ -3,9 +3,31 @@ spring:
     name: Open436-Auth
   profiles:
     active: dev # 默认使用开发环境
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      discovery:
+        enabled: true
+        service-name: auth-service
+        instance-id: ${spring.application.name}:${random.value}
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+        prefer-ip-address: true
+        hostname: ${HOSTNAME:localhost}
 
 server:
   port: 8081
+
+# Actuator 配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
 
 # Sa-Token 配置（所有环境共用）
 sa-token:

@@ -1,0 +1,9 @@
+F:\code\new\Open436\Open436-FileService\Open436-FileService/target/rust-analyzer\debug\deps\powerfmt-cb69ab1dd940a5f2.d: C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\powerfmt-0.2.0\src\lib.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\powerfmt-0.2.0\src\buf.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\powerfmt-0.2.0\src\ext.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\powerfmt-0.2.0\src\smart_display.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\powerfmt-0.2.0\src\smart_display_impls.rs
+
+F:\code\new\Open436\Open436-FileService\Open436-FileService/target/rust-analyzer\debug\deps\libpowerfmt-cb69ab1dd940a5f2.rmeta: C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\powerfmt-0.2.0\src\lib.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\powerfmt-0.2.0\src\buf.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\powerfmt-0.2.0\src\ext.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\powerfmt-0.2.0\src\smart_display.rs C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\powerfmt-0.2.0\src\smart_display_impls.rs
+
+C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\powerfmt-0.2.0\src\lib.rs:
+C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\powerfmt-0.2.0\src\buf.rs:
+C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\powerfmt-0.2.0\src\ext.rs:
+C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\powerfmt-0.2.0\src\smart_display.rs:
+C:\Users\29516\.cargo\registry\src\mirrors.tuna.tsinghua.edu.cn-e791a3f93f26854f\powerfmt-0.2.0\src\smart_display_impls.rs:
