@@ -33,7 +33,7 @@
 启动应用后，可访问以下地址查看Swagger UI：
 
 ```
-http://localhost:8080/swagger-ui.html
+http://localhost:8003/swagger-ui/index.html
 ```
 
 ---

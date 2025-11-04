@@ -73,7 +73,55 @@ public class PostServiceImpl implements PostService {
     @Override
     public PageResult<PostListVO> listPosts(PostQueryDTO queryDTO) {
         log.info("查询帖子列表 - 查询条件:{}", queryDTO);
-        throw new UnsupportedOperationException("功能待实现：帖子分页查询");
+
+        // 参数校验和默认值设置
+        Integer page = queryDTO.getPage() != null && queryDTO.getPage() > 0 ? queryDTO.getPage() : 1;
+        Integer pageSize = queryDTO.getPageSize() != null && queryDTO.getPageSize() > 0
+                ? Math.min(queryDTO.getPageSize(), 50) : 20; // 最大50条
+        Boolean includeDeleted = queryDTO.getIncludeDeleted() != null ? queryDTO.getIncludeDeleted() : false;
+        Boolean pinnedOnly = queryDTO.getPinnedOnly() != null ? queryDTO.getPinnedOnly() : false;
+        String sortBy = queryDTO.getSortBy() != null ? queryDTO.getSortBy() : "latest";
+
+        // 创建分页对象（Spring Data JPA页码从0开始）
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+
+        // 根据排序方式选择不同的查询方法
+        Page<Post> postPage;
+        switch (sortBy.toLowerCase()) {
+            case "reply":
+                postPage = postRepository.findPostsSortedByReply(
+                        queryDTO.getBoardId(),
+                        queryDTO.getAuthorId(),
+                        includeDeleted,
+                        pinnedOnly,
+                        pageable);
+                break;
+            case "hot":
+                postPage = postRepository.findPostsSortedByHot(
+                        queryDTO.getBoardId(),
+                        queryDTO.getAuthorId(),
+                        includeDeleted,
+                        pinnedOnly,
+                        pageable);
+                break;
+            case "latest":
+            default:
+                postPage = postRepository.findPostsWithFilters(
+                        queryDTO.getBoardId(),
+                        queryDTO.getAuthorId(),
+                        includeDeleted,
+                        pinnedOnly,
+                        pageable);
+                break;
+        }
+
+        // 转换为VO列表
+        List<PostListVO> voList = postPage.getContent().stream()
+                .map(this::convertToPostListVO)
+                .collect(Collectors.toList());
+
+        // 构建分页结果
+        return PageResult.build(page, pageSize, postPage.getTotalElements(), voList);
     }
     
     @Override
