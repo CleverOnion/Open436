@@ -15,7 +15,7 @@ pub fn extract_user_info(req: &ServiceRequest) -> Option<UserInfo> {
     // 从 Kong 注入的 Header 获取用户信息
     let user_id = headers.get("X-User-Id")?.to_str().ok()?.parse::<i64>().ok()?;
     let username = headers.get("X-Username")?.to_str().ok()?.to_string();
-    let role = headers.get("X-Role")?.to_str().ok()?.to_string();
+    let role = headers.get("X-User-Role")?.to_str().ok()?.to_string();
     
     Some(UserInfo {
         user_id,

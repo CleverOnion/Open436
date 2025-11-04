@@ -56,8 +56,7 @@ function SaTokenAuthHandler:access(conf)
     kong.service.request.set_header("X-Username", userData.username)
   end
   if userData.role then
-    kong.service.request.set_header("X-Role", userData.role)
-    kong.service.request.set_header("X-User-Role", userData.role)  -- M7 expects X-User-Role
+    kong.service.request.set_header("X-User-Role", userData.role)
   end
   
   kong.log.info("User authenticated: ", userData.username or "unknown", " role: ", userData.role or "none")
