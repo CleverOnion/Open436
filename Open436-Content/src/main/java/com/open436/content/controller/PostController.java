@@ -76,14 +76,19 @@ public class PostController {
     @Operation(summary = "查看帖子详情", description = "查看指定帖子的完整信息，自动记录浏览量")
     public Result<PostDetailVO> getPostDetail(
             @Parameter(description = "帖子ID") @PathVariable Long id,
+            @Parameter(hidden = true) @RequestHeader(value = "X-Is-Admin", required = false, defaultValue = "false") Boolean isAdmin,
             HttpServletRequest request
     ) {
         // 获取访问者ID（可能未登录）
         Long userId = AuthUtil.getCurrentUserIdOrNull();
-        log.info("查看帖子详情 - 帖子ID: {}, 用户ID: {}", id, userId);
         // 获取访问者IP
         String ipAddress = getClientIp(request);
-        PostDetailVO detail = postService.getPostDetail(id, userId, ipAddress);
+        // 如果请求头未提供，尝试从AuthUtil获取
+        if (isAdmin == null) {
+            isAdmin = AuthUtil.isAdmin();
+        }
+        log.info("查看帖子详情 - 帖子ID: {}, 用户ID: {}, 是否管理员: {}", id, userId, isAdmin);
+        PostDetailVO detail = postService.getPostDetail(id, userId, ipAddress, isAdmin);
         return Result.success(detail);
     }
     

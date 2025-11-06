@@ -35,9 +35,10 @@ public interface PostService {
      * @param id 帖子ID
      * @param viewerId 访问者ID（登录用户），未登录传null
      * @param viewerIp 访问者IP（未登录用户）
+     * @param isAdmin 是否为管理员
      * @return 帖子详情
      */
-    PostDetailVO getPostDetail(Long id, Long viewerId, String viewerIp);
+    PostDetailVO getPostDetail(Long id, Long viewerId, String viewerIp, Boolean isAdmin);
     
     /**
      * 编辑帖子

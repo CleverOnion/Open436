@@ -5,6 +5,7 @@ import com.open436.content.domain.dto.CreatePostDTO;
 import com.open436.content.domain.dto.PostQueryDTO;
 import com.open436.content.domain.dto.UpdatePostDTO;
 import com.open436.content.domain.entity.Post;
+import com.open436.content.domain.entity.PostViewRecord;
 import com.open436.content.repository.PostEditHistoryRepository;
 import com.open436.content.repository.PostRepository;
 import com.open436.content.repository.PostViewRecordRepository;
@@ -19,7 +20,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -126,9 +129,112 @@ public class PostServiceImpl implements PostService {
     
     @Override
     @Transactional
-    public PostDetailVO getPostDetail(Long id, Long viewerId, String viewerIp) {
-        log.info("查看帖子详情 - 帖子ID:{}, 访问者ID:{}", id, viewerId);
-        throw new UnsupportedOperationException("功能待实现：获取帖子细节");
+    public PostDetailVO getPostDetail(Long id, Long viewerId, String viewerIp, Boolean isAdmin) {
+        log.info("查看帖子详情 - 帖子ID:{}, 访问者ID:{}, IP:{}, 是否管理员:{}", id, viewerId, viewerIp, isAdmin);
+        
+        // 1. 查询帖子（包括已删除的）
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new com.open436.content.common.exception.ResourceNotFoundException("帖子", id));
+        
+        // 2. 权限检查：已删除的帖子仅管理员可见
+        if (post.getIsDeleted() && !Boolean.TRUE.equals(isAdmin)) {
+            log.warn("非管理员用户尝试访问已删除的帖子 - 帖子ID:{}, 访问者ID:{}", id, viewerId);
+            throw new com.open436.content.common.exception.ResourceNotFoundException("帖子", id);
+        }
+        
+        // 3. 记录浏览量（需要满足业务规则）
+        recordPostView(post, viewerId, viewerIp);
+        
+        // 4. 转换为VO
+        PostDetailVO detailVO = convertToPostDetailVO(post);
+        
+        log.info("帖子详情查询成功 - 帖子ID:{}, 浏览量:{}", id, post.getViewCount());
+        return detailVO;
+    }
+    
+    /**
+     * 记录帖子浏览量
+     * 业务规则：
+     * 1. 每次访问浏览量+1
+     * 2. 同一用户10分钟内多次访问不重复计数
+     * 3. 作者本人访问不计入浏览量
+     */
+    private void recordPostView(Post post, Long viewerId, String viewerIp) {
+        // 作者本人访问不计入浏览量
+        if (viewerId != null && viewerId.equals(post.getAuthorId())) {
+            log.debug("作者本人访问，不计入浏览量 - 帖子ID:{}, 作者ID:{}", post.getId(), viewerId);
+            return;
+        }
+        
+        LocalDateTime tenMinutesAgo = LocalDateTime.now().minusMinutes(10);
+        Optional<PostViewRecord> recentView;
+        
+        // 检查10分钟内是否访问过
+        if (viewerId != null) {
+            recentView = postViewRecordRepository.findRecentViewByUserAndPost(
+                    post.getId(), viewerId, tenMinutesAgo);
+        } else if (viewerIp != null && !viewerIp.isEmpty()) {
+            recentView = postViewRecordRepository.findRecentViewByIpAndPost(
+                    post.getId(), viewerIp, tenMinutesAgo);
+        } else {
+            log.warn("无法记录浏览量：既没有用户ID也没有IP - 帖子ID:{}", post.getId());
+            return;
+        }
+        
+        // 如果10分钟内已访问过，不重复计数
+        if (recentView.isPresent()) {
+            log.debug("10分钟内重复访问，不计入浏览量 - 帖子ID:{}, 访问者ID:{}, IP:{}", 
+                     post.getId(), viewerId, viewerIp);
+            return;
+        }
+        
+        // 创建浏览记录并更新浏览量
+        PostViewRecord viewRecord = new PostViewRecord();
+        viewRecord.setPostId(post.getId());
+        viewRecord.setUserId(viewerId);
+        viewRecord.setIpAddress(viewerId == null ? viewerIp : null);
+        postViewRecordRepository.save(viewRecord);
+        
+        post.setViewCount(post.getViewCount() + 1);
+        postRepository.save(post);
+        
+        log.debug("记录浏览量 - 帖子ID:{}, 访问者ID:{}, IP:{}", post.getId(), viewerId, viewerIp);
+    }
+    
+    /**
+     * 计算帖子是否已编辑
+     */
+    private Boolean calculateIsEdited(Post post) {
+        return post.getLastEditedAt() != null && 
+               post.getLastEditedAt().isAfter(post.getCreatedAt());
+    }
+    
+    /**
+     * 将Post实体转换为PostDetailVO
+     */
+    private PostDetailVO convertToPostDetailVO(Post post) {
+        return PostDetailVO.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .authorId(post.getAuthorId())
+                .authorName(null) // TODO: 调用M2用户服务获取用户信息
+                .authorAvatar(null) // TODO: 调用M2用户服务获取用户头像
+                .boardId(post.getBoardId())
+                .boardName(null) // TODO: 调用M5板块服务获取板块名称
+                .pinType(post.getPinType())
+                .isDeleted(post.getIsDeleted())
+                .deleteReason(post.getDeleteReason())
+                .viewCount(post.getViewCount())
+                .replyCount(post.getReplyCount())
+                .likeCount(post.getLikeCount())
+                .editCount(post.getEditCount())
+                .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
+                .lastEditedAt(post.getLastEditedAt())
+                .lastEditedBy(post.getLastEditedBy())
+                .isEdited(calculateIsEdited(post))
+                .build();
     }
     
     @Override
@@ -189,8 +295,7 @@ public class PostServiceImpl implements PostService {
                 .likeCount(post.getLikeCount())
                 .createdAt(post.getCreatedAt())
                 .lastEditedAt(post.getLastEditedAt())
-                .isEdited(post.getLastEditedAt() != null && 
-                         post.getLastEditedAt().isAfter(post.getCreatedAt()))
+                .isEdited(calculateIsEdited(post))
                 .build();
     }
     
