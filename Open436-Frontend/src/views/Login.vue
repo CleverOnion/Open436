@@ -94,6 +94,8 @@ import { useUserStore } from '@/stores/modules/user'
 import { authAPI } from '@/api/modules/auth'
 import { handleApiError } from '@/utils/errorCode'
 
+console.log('测试')
+
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
