@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>使用指南 - Open436 论坛原型</title>
+  <link rel="stylesheet" href="css/common.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: var(--space-xl);
+    }
+
+    .guide-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--background);
+      border-radius: var(--radius-md);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: var(--space-2xl);
+    }
+
+    .guide-header {
+      text-align: center;
+      margin-bottom: var(--space-2xl);
+      padding-bottom: var(--space-xl);
+      border-bottom: 2px solid var(--divider);
+    }
+
+    .guide-logo {
+      width: 80px;
+      height: 80px;
+      background: var(--primary);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--space-base);
+      color: white;
+      font-size: 40px;
+      font-weight: 700;
+    }
+
+    .guide-title {
+      font-size: 32px;
+      font-weight: 500;
+      margin-bottom: var(--space-sm);
+    }
+
+    .guide-subtitle {
+      color: var(--text-secondary);
+      font-size: 16px;
+    }
+
+    .guide-section {
+      margin-bottom: var(--space-xl);
+    }
+
+    .guide-section h2 {
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--primary);
+      margin-bottom: var(--space-base);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .guide-section h3 {
+      font-size: 18px;
+      font-weight: 500;
+      margin-top: var(--space-lg);
+      margin-bottom: var(--space-base);
+    }
+
+    .guide-section p {
+      line-height: 1.8;
+      color: var(--text-primary);
+      margin-bottom: var(--space-base);
+    }
+
+    .guide-section ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .guide-section li {
+      padding: var(--space-sm) 0;
+      padding-left: var(--space-lg);
+      position: relative;
+      line-height: 1.6;
+    }
+
+    .guide-section li:before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .account-card {
+      background: var(--background-secondary);
+      border-radius: var(--radius-sm);
+      padding: var(--space-base);
+      margin: var(--space-base) 0;
+      border-left: 4px solid var(--primary);
+    }
+
+    .account-card strong {
+      color: var(--primary);
+    }
+
+    .link-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--space-base);
+      margin: var(--space-lg) 0;
+    }
+
+    .link-card {
+      background: var(--background-secondary);
+      border-radius: var(--radius-sm);
+      padding: var(--space-base);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+      border: 2px solid transparent;
+    }
+
+    .link-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .link-card-title {
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: var(--space-xs);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .link-card-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-base);
+      margin: var(--space-lg) 0;
+    }
+
+    .feature-item {
+      background: var(--background-secondary);
+      padding: var(--space-base);
+      border-radius: var(--radius-sm);
+      text-align: center;
+    }
+
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: var(--space-sm);
+    }
+
+    .feature-name {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: var(--space-base);
+      justify-content: center;
+      margin-top: var(--space-2xl);
+      padding-top: var(--space-xl);
+      border-top: 1px solid var(--divider);
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: var(--space-base);
+      }
+
+      .guide-container {
+        padding: var(--space-lg);
+      }
+
+      .link-grid,
+      .feature-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="guide-container">
+    <div class="guide-header">
+      <div class="guide-logo">O</div>
+      <h1 class="guide-title">Open436 论坛原型</h1>
+      <p class="guide-subtitle">基于 Clean Design UI 设计规范的现代化论坛系统</p>
+    </div>
+
+    <div class="guide-section">
+      <h2>
+        <span>🚀</span>
+        快速开始
+      </h2>
+      <p>欢迎使用 Open436 论坛原型！这是一个完全使用 HTML、CSS 和原生 JavaScript 构建的静态原型，展示了现代化论坛系统的核心功能和设计。</p>
+      
+      <h3>测试账号</h3>
+      <div class="account-card">
+        <p><strong>普通用户：</strong>使用任意用户名和密码即可登录</p>
+        <p style="margin-bottom: 0;"><strong>管理员：</strong>用户名输入 <code>admin</code>，密码任意</p>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <h2>
+        <span>📄</span>
+        页面导航
+      </h2>
+      
+      <h3>用户端页面</h3>
+      <div class="link-grid">
+        <a href="pages/login.html" class="link-card">
+          <div class="link-card-title">
+            <span>🔐</span>
+            登录页面
+          </div>
+          <div class="link-card-desc">用户登录入口</div>
+        </a>
+        <a href="pages/home.html" class="link-card">
+          <div class="link-card-title">
+            <span>🏠</span>
+            首页
+          </div>
+          <div class="link-card-desc">帖子时间线浏览</div>
+        </a>
+        <a href="pages/post-detail.html?id=1" class="link-card">
+          <div class="link-card-title">
+            <span>📝</span>
+            帖子详情
+          </div>
+          <div class="link-card-desc">查看帖子和回复</div>
+        </a>
+        <a href="pages/post-new.html" class="link-card">
+          <div class="link-card-title">
+            <span>✏️</span>
+            发布新帖
+          </div>
+          <div class="link-card-desc">Markdown 编辑器</div>
+        </a>
+        <a href="pages/profile.html" class="link-card">
+          <div class="link-card-title">
+            <span>👤</span>
+            个人主页
+          </div>
+          <div class="link-card-desc">用户资料和历史</div>
+        </a>
+      </div>
+
+      <h3>管理端页面</h3>
+      <div class="link-grid">
+        <a href="admin/dashboard.html" class="link-card">
+          <div class="link-card-title">
+            <span>📊</span>
+            管理后台
+          </div>
+          <div class="link-card-desc">数据统计和概览</div>
+        </a>
+        <a href="admin/users.html" class="link-card">
+          <div class="link-card-title">
+            <span>👥</span>
+            用户管理
+          </div>
+          <div class="link-card-desc">管理用户账号</div>
+        </a>
+        <a href="admin/posts.html" class="link-card">
+          <div class="link-card-title">
+            <span>📋</span>
+            内容管理
+          </div>
+          <div class="link-card-desc">管理帖子内容</div>
+        </a>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <h2>
+        <span>✨</span>
+        功能特性
+      </h2>
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-icon">🎨</div>
+          <div class="feature-name">Clean Design</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📱</div>
+          <div class="feature-name">响应式设计</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-name">流畅动画</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🔍</div>
+          <div class="feature-name">实时预览</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">💬</div>
+          <div class="feature-name">评论回复</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">❤️</div>
+          <div class="feature-name">点赞收藏</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🔒</div>
+          <div class="feature-name">权限管理</div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📊</div>
+          <div class="feature-name">数据统计</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <h2>
+        <span>💡</span>
+        使用提示
+      </h2>
+      <ul>
+        <li>所有数据都是前端模拟的，刷新页面后部分操作会重置</li>
+        <li>用户登录状态保存在 LocalStorage 中</li>
+        <li>建议使用 Chrome 或 Firefox 浏览器以获得最佳体验</li>
+        <li>支持移动端访问，可以在手机浏览器中打开</li>
+        <li>Markdown 编辑器支持实时预览和常用格式</li>
+        <li>管理员账号可以访问管理后台的所有功能</li>
+      </ul>
+    </div>
+
+    <div class="guide-section">
+      <h2>
+        <span>🛠️</span>
+        技术栈
+      </h2>
+      <ul>
+        <li><strong>HTML5</strong> - 语义化标签和现代 HTML 特性</li>
+        <li><strong>CSS3</strong> - Grid、Flexbox、CSS Variables、动画</li>
+        <li><strong>JavaScript</strong> - 原生 ES6+，无任何框架依赖</li>
+        <li><strong>LocalStorage</strong> - 本地数据存储</li>
+      </ul>
+    </div>
+
+    <div class="guide-section">
+      <h2>
+        <span>📚</span>
+        相关文档
+      </h2>
+      <ul>
+        <li><strong>Clean_Design_UI规范.md</strong> - 完整的 UI 设计规范文档</li>
+        <li><strong>页面结构设计.md</strong> - 页面结构和功能说明</li>
+        <li><strong>需求文档.md</strong> - 项目需求和功能定义</li>
+        <li><strong>README.md</strong> - 项目说明和使用指南</li>
+      </ul>
+    </div>
+
+    <div class="action-buttons">
+      <a href="pages/login.html" class="btn btn-primary btn-lg">
+        开始体验
+      </a>
+      <a href="README.md" class="btn btn-secondary btn-lg" target="_blank">
+        查看文档
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // Check if user is already logged in
+    const currentUser = localStorage.getItem('currentUser');
+    if (currentUser) {
+      const actionButtons = document.querySelector('.action-buttons');
+      actionButtons.innerHTML = `
+        <a href="pages/home.html" class="btn btn-primary btn-lg">
+          进入论坛
+        </a>
+        <a href="admin/dashboard.html" class="btn btn-secondary btn-lg">
+          管理后台
+        </a>
+      `;
+    }
+  </script>
+</body>
+</html>

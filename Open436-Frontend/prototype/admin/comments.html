@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>评论管理 - Open436 论坛</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    body {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      padding: var(--space-xl);
+      background: var(--background-secondary);
+    }
+
+    .page-header {
+      margin-bottom: var(--space-xl);
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .page-description {
+      color: var(--text-secondary);
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-lg);
+      gap: var(--space-base);
+    }
+
+    .search-box {
+      flex: 1;
+      max-width: 400px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: var(--space-sm) var(--space-base);
+      padding-left: 40px;
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      color: var(--text-secondary);
+    }
+
+    .filter-group {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    .filter-btn {
+      padding: var(--space-sm) var(--space-base);
+      border: 1px solid var(--divider);
+      background: white;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .filter-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .data-table {
+      background: white;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: var(--background-secondary);
+    }
+
+    th {
+      padding: var(--space-base) var(--space-lg);
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: var(--space-base) var(--space-lg);
+      border-top: 1px solid var(--divider);
+    }
+
+    tbody tr:hover {
+      background: var(--background-secondary);
+    }
+
+    .comment-content {
+      max-width: 400px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .comment-post-title {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .comment-post-title:hover {
+      text-decoration: underline;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge-success {
+      background: rgba(76, 175, 80, 0.1);
+      color: var(--success);
+    }
+
+    .badge-warning {
+      background: rgba(255, 152, 0, 0.1);
+      color: var(--warning);
+    }
+
+    .badge-danger {
+      background: rgba(244, 67, 54, 0.1);
+      color: var(--error);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: var(--space-xs);
+    }
+
+    .btn-icon {
+      padding: var(--space-xs);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .btn-icon:hover {
+      background: var(--background-secondary);
+    }
+
+    .btn-icon svg {
+      width: 18px;
+      height: 18px;
+      color: var(--text-secondary);
+    }
+
+    .btn-icon.danger:hover {
+      background: rgba(244, 67, 54, 0.1);
+    }
+
+    .btn-icon.danger:hover svg {
+      color: var(--error);
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-top: var(--space-xl);
+    }
+
+    .pagination button {
+      padding: var(--space-sm) var(--space-base);
+      border: 1px solid var(--divider);
+      background: white;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .pagination button:hover:not(:disabled) {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pagination .page-info {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    @media (max-width: 959px) {
+      .main-content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Container -->
+  <div id="admin-sidebar-container"></div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">评论管理</h1>
+      <p class="page-description">管理所有用户评论，审核和删除不当内容</p>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input type="text" placeholder="搜索评论内容或用户..." id="searchInput">
+      </div>
+
+      <div class="filter-group">
+        <button class="filter-btn active" onclick="filterComments('all')">全部</button>
+        <button class="filter-btn" onclick="filterComments('normal')">正常</button>
+        <button class="filter-btn" onclick="filterComments('reported')">被举报</button>
+        <button class="filter-btn" onclick="filterComments('deleted')">已删除</button>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="data-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>评论内容</th>
+            <th>所属帖子</th>
+            <th>用户</th>
+            <th>发布时间</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="commentsTable">
+          <!-- Comments will be loaded here -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button onclick="prevPage()" id="prevBtn">上一页</button>
+      <span class="page-info">第 <span id="currentPage">1</span> 页，共 <span id="totalPages">1</span> 页</span>
+      <button onclick="nextPage()" id="nextBtn">下一页</button>
+    </div>
+  </main>
+
+  <script src="../js/common.js"></script>
+  <script src="components/sidebar.js"></script>
+  <script>
+    // Check admin permission
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser || currentUser.role !== 'admin') {
+      window.location.href = '../pages/home.html';
+    }
+
+    // Initialize sidebar
+    initAdminSidebar('comments');
+
+    // Mock comments data
+    const mockComments = [
+      {
+        id: 1,
+        content: '非常实用的教程，学到了很多！感谢分享。',
+        postId: 2,
+        postTitle: 'JavaScript 异步编程最佳实践',
+        user: {
+          id: 3,
+          nickname: 'JavaScript学习者',
+          avatar: 'https://ui-avatars.com/api/?name=JS&background=F7DF1E&color=000'
+        },
+        createdAt: new Date(Date.now() - 3600000).toISOString(),
+        status: 'normal'
+      },
+      {
+        id: 2,
+        content: '这个方法我试过了，确实很有效！',
+        postId: 4,
+        postTitle: 'Node.js 性能优化技巧',
+        user: {
+          id: 5,
+          nickname: '后端开发者',
+          avatar: 'https://ui-avatars.com/api/?name=BE&background=9C27B0&color=fff'
+        },
+        createdAt: new Date(Date.now() - 7200000).toISOString(),
+        status: 'normal'
+      },
+      {
+        id: 3,
+        content: '垃圾内容，纯属广告！',
+        postId: 7,
+        postTitle: '分享一些优秀的设计资源网站',
+        user: {
+          id: 12,
+          nickname: '匿名用户',
+          avatar: 'https://ui-avatars.com/api/?name=AN&background=607D8B&color=fff'
+        },
+        createdAt: new Date(Date.now() - 10800000).toISOString(),
+        status: 'reported'
+      },
+      {
+        id: 4,
+        content: '同意！Promise.all() 在处理并发请求时非常有用。',
+        postId: 2,
+        postTitle: 'JavaScript 异步编程最佳实践',
+        user: {
+          id: 8,
+          nickname: '前端工程师',
+          avatar: 'https://ui-avatars.com/api/?name=FE&background=61DAFB&color=000'
+        },
+        createdAt: new Date(Date.now() - 14400000).toISOString(),
+        status: 'normal'
+      },
+      {
+        id: 5,
+        content: '这个评论违规已被删除',
+        postId: 6,
+        postTitle: '如何解决 CSS 浮动问题？',
+        user: {
+          id: 15,
+          nickname: '违规用户',
+          avatar: 'https://ui-avatars.com/api/?name=VU&background=F44336&color=fff'
+        },
+        createdAt: new Date(Date.now() - 18000000).toISOString(),
+        status: 'deleted'
+      },
+      {
+        id: 6,
+        content: 'Grid 布局真的很强大，比 Flexbox 更适合复杂布局。',
+        postId: 3,
+        postTitle: 'CSS Grid 布局完全指南',
+        user: {
+          id: 10,
+          nickname: 'CSS专家',
+          avatar: 'https://ui-avatars.com/api/?name=CSS&background=1572B6&color=fff'
+        },
+        createdAt: new Date(Date.now() - 21600000).toISOString(),
+        status: 'normal'
+      },
+      {
+        id: 7,
+        content: '有没有更详细的代码示例？',
+        postId: 5,
+        postTitle: 'React Hooks 深入理解',
+        user: {
+          id: 6,
+          nickname: 'React新手',
+          avatar: 'https://ui-avatars.com/api/?name=RN&background=FF5722&color=fff'
+        },
+        createdAt: new Date(Date.now() - 25200000).toISOString(),
+        status: 'normal'
+      },
+      {
+        id: 8,
+        content: '这个内容涉嫌抄袭，请管理员处理！',
+        postId: 8,
+        postTitle: '关于前端发展趋势的一些思考',
+        user: {
+          id: 14,
+          nickname: '举报者',
+          avatar: 'https://ui-avatars.com/api/?name=RP&background=FFC107&color=000'
+        },
+        createdAt: new Date(Date.now() - 28800000).toISOString(),
+        status: 'reported'
+      }
+    ];
+
+    let currentFilter = 'all';
+    let currentPage = 1;
+    const itemsPerPage = 10;
+
+    function filterComments(filter) {
+      currentFilter = filter;
+      currentPage = 1;
+
+      // Update button states
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      renderComments();
+    }
+
+    function renderComments() {
+      const tbody = document.getElementById('commentsTable');
+      
+      // Filter comments
+      let filteredComments = mockComments;
+      if (currentFilter !== 'all') {
+        filteredComments = mockComments.filter(c => c.status === currentFilter);
+      }
+
+      // Pagination
+      const totalPages = Math.ceil(filteredComments.length / itemsPerPage);
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const commentsToShow = filteredComments.slice(startIndex, endIndex);
+
+      // Render table rows
+      tbody.innerHTML = commentsToShow.map(comment => `
+        <tr>
+          <td>#${comment.id}</td>
+          <td>
+            <div class="comment-content">${comment.content}</div>
+          </td>
+          <td>
+            <a href="../pages/post-detail.html?id=${comment.postId}" class="comment-post-title" target="_blank">
+              ${comment.postTitle}
+            </a>
+          </td>
+          <td>
+            <div class="user-info">
+              <img src="${comment.user.avatar}" alt="${comment.user.nickname}" class="user-avatar">
+              <span>${comment.user.nickname}</span>
+            </div>
+          </td>
+          <td>${formatDate(comment.createdAt)}</td>
+          <td>
+            ${getStatusBadge(comment.status)}
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-icon" onclick="viewComment(${comment.id})" title="查看">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+              ${comment.status !== 'deleted' ? `
+                <button class="btn-icon danger" onclick="deleteComment(${comment.id})" title="删除">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+              ` : ''}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      // Update pagination
+      document.getElementById('currentPage').textContent = currentPage;
+      document.getElementById('totalPages').textContent = totalPages;
+      document.getElementById('prevBtn').disabled = currentPage === 1;
+      document.getElementById('nextBtn').disabled = currentPage === totalPages;
+    }
+
+    function getStatusBadge(status) {
+      const badges = {
+        normal: '<span class="badge badge-success">正常</span>',
+        reported: '<span class="badge badge-warning">被举报</span>',
+        deleted: '<span class="badge badge-danger">已删除</span>'
+      };
+      return badges[status] || badges.normal;
+    }
+
+    function viewComment(id) {
+      const comment = mockComments.find(c => c.id === id);
+      if (comment) {
+        showAlert(`评论详情\n\n内容：${comment.content}\n用户：${comment.user.nickname}\n时间：${formatDate(comment.createdAt)}`);
+      }
+    }
+
+    function deleteComment(id) {
+      showConfirm('确定要删除这条评论吗？', () => {
+        const comment = mockComments.find(c => c.id === id);
+        if (comment) {
+          comment.status = 'deleted';
+          renderComments();
+          showToast('评论已删除', 'success');
+        }
+      });
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderComments();
+      }
+    }
+
+    function nextPage() {
+      const totalPages = Math.ceil(mockComments.length / itemsPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderComments();
+      }
+    }
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      // Implement search logic here
+    });
+
+    // Initialize
+    renderComments();
+  </script>
+</body>
+</html>

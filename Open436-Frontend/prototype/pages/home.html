@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>首页 - Open436 论坛</title>
+    <link rel="stylesheet" href="../css/common.css" />
+    <link rel="stylesheet" href="../css/navbar.css" />
+    <link rel="stylesheet" href="../css/sidebar.css" />
+    <style>
+      .main-content {
+        padding: var(--space-xl) 0;
+        min-height: calc(100vh - 64px);
+      }
+
+      .page-header {
+        margin-bottom: var(--space-xl);
+      }
+
+      .page-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: var(--space-sm);
+      }
+
+      .page-description {
+        color: var(--text-secondary);
+        font-size: 14px;
+      }
+
+      .post-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        background: white;
+      }
+
+      .post-card {
+        background: white;
+        border-radius: 0;
+        padding: var(--space-lg);
+        transition: background-color var(--transition-fast);
+        cursor: pointer;
+        border: none;
+        border-bottom: 1px solid #e5e5e5;
+      }
+
+      .post-card:first-child {
+        border-top: 1px solid #e5e5e5;
+      }
+
+      .post-card:hover {
+        background-color: #f8f9fa;
+      }
+
+      .post-card.pinned {
+        border-left: 4px solid var(--warning);
+        padding-left: calc(var(--space-lg) - 4px);
+      }
+
+      .post-header {
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+        margin-bottom: var(--space-sm);
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+
+      .section-icon {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .post-author {
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+        flex: 1;
+      }
+
+      .post-author img.avatar {
+        width: 20px;
+        height: 20px;
+      }
+
+      .post-author-info {
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+      }
+
+      .post-author-name {
+        font-weight: 400;
+        color: var(--text-primary);
+        font-size: 12px;
+      }
+
+      .post-time {
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+
+      .post-time::before {
+        content: "•";
+        margin: 0 4px;
+      }
+
+      .post-title {
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: var(--space-xs);
+        line-height: 1.3;
+      }
+
+      .post-content-preview {
+        color: #7c7c7c;
+        line-height: 1.5;
+        margin-bottom: var(--space-sm);
+        font-size: 14px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .post-footer {
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+        padding-top: 0;
+        border-top: none;
+      }
+
+      .post-stat {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--text-secondary);
+        font-size: 12px;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: background-color var(--transition-fast);
+      }
+
+      .post-stat:hover {
+        background-color: #f0f0f0;
+      }
+
+      .post-stat svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .post-stat.liked {
+        color: var(--error);
+      }
+
+      .fab {
+        position: fixed;
+        bottom: var(--space-xl);
+        right: var(--space-xl);
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: var(--secondary);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all var(--transition-fast);
+        z-index: 50;
+      }
+
+      .fab:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+      }
+
+      .fab svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: var(--space-3xl) var(--space-lg);
+        color: var(--text-secondary);
+      }
+
+      .empty-state svg {
+        width: 64px;
+        height: 64px;
+        margin-bottom: var(--space-base);
+        opacity: 0.5;
+      }
+
+      @media (max-width: 599px) {
+        .content-header {
+          flex-direction: column;
+          align-items: stretch;
+          gap: var(--space-base);
+        }
+
+        .fab {
+          bottom: var(--space-base);
+          right: var(--space-base);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <div class="navbar-container">
+        <a href="home.html" class="navbar-brand">
+          <div class="navbar-logo">O</div>
+          <span>OPEN436</span>
+        </a>
+
+        <div class="navbar-menu">
+          <a href="home.html" class="navbar-link active">首页</a>
+          <a href="favorites.html" class="navbar-link">我的收藏</a>
+        </div>
+
+        <div class="navbar-search">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="搜索帖子..."
+            onkeypress="handleSearch(event)"
+          />
+        </div>
+
+        <div class="navbar-actions">
+          <div class="navbar-user" data-dropdown>
+            <button class="navbar-user-btn" data-dropdown-trigger>
+              <img
+                src=""
+                alt="Avatar"
+                class="avatar avatar-sm"
+                id="navAvatar"
+              />
+              <span class="navbar-user-name" id="navUsername">用户</span>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="navbar-dropdown">
+              <a href="profile.html" class="navbar-dropdown-item">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                个人主页
+              </a>
+              <a href="profile-edit.html" class="navbar-dropdown-item">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                  ></path>
+                  <path
+                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                  ></path>
+                </svg>
+                编辑资料
+              </a>
+              <a href="password-change.html" class="navbar-dropdown-item">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect
+                    x="3"
+                    y="11"
+                    width="18"
+                    height="11"
+                    rx="2"
+                    ry="2"
+                  ></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                修改密码
+              </a>
+              <div
+                class="navbar-dropdown-divider"
+                id="adminDivider"
+                style="display: none"
+              ></div>
+              <a
+                href="../admin/dashboard.html"
+                class="navbar-dropdown-item"
+                id="adminLink"
+                style="display: none"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect x="3" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="14" width="7" height="7"></rect>
+                  <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                管理后台
+              </a>
+              <div class="navbar-dropdown-divider"></div>
+              <a href="#" class="navbar-dropdown-item" onclick="logout()">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                退出登录
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+          <div class="sidebar-sticky">
+            <!-- Sections -->
+            <div class="sidebar-section">
+              <div class="sidebar-section-header">板块分类</div>
+              <ul class="sidebar-menu">
+                <li class="sidebar-menu-item">
+                  <a
+                    href="#"
+                    class="sidebar-menu-link active"
+                    data-section="all"
+                    onclick="filterBySection('all', event)"
+                  >
+                    <span class="sidebar-menu-icon">
+                      <img
+                        src="https://api.iconify.design/mdi:view-grid.svg?color=%231976D2&width=32"
+                        alt="全部"
+                      />
+                    </span>
+                    <span class="sidebar-menu-text">全部</span>
+                    <span class="sidebar-menu-count" id="count-all">0</span>
+                  </a>
+                </li>
+                <li class="sidebar-menu-item">
+                  <a
+                    href="#"
+                    class="sidebar-menu-link"
+                    data-section="tech"
+                    onclick="filterBySection('tech', event)"
+                  >
+                    <span class="sidebar-menu-icon">
+                      <img
+                        src="https://api.iconify.design/mdi:code-braces.svg?color=%231976D2&width=32"
+                        alt="技术交流"
+                      />
+                    </span>
+                    <span class="sidebar-menu-text">技术交流</span>
+                    <span class="sidebar-menu-count" id="count-tech">0</span>
+                  </a>
+                </li>
+                <li class="sidebar-menu-item">
+                  <a
+                    href="#"
+                    class="sidebar-menu-link"
+                    data-section="design"
+                    onclick="filterBySection('design', event)"
+                  >
+                    <span class="sidebar-menu-icon">
+                      <img
+                        src="https://api.iconify.design/mdi:palette.svg?color=%23FF6F00&width=32"
+                        alt="设计分享"
+                      />
+                    </span>
+                    <span class="sidebar-menu-text">设计分享</span>
+                    <span class="sidebar-menu-count" id="count-design">0</span>
+                  </a>
+                </li>
+                <li class="sidebar-menu-item">
+                  <a
+                    href="#"
+                    class="sidebar-menu-link"
+                    data-section="discuss"
+                    onclick="filterBySection('discuss', event)"
+                  >
+                    <span class="sidebar-menu-icon">
+                      <img
+                        src="https://api.iconify.design/mdi:forum.svg?color=%234CAF50&width=32"
+                        alt="综合讨论"
+                      />
+                    </span>
+                    <span class="sidebar-menu-text">综合讨论</span>
+                    <span class="sidebar-menu-count" id="count-discuss">0</span>
+                  </a>
+                </li>
+                <li class="sidebar-menu-item">
+                  <a
+                    href="#"
+                    class="sidebar-menu-link"
+                    data-section="question"
+                    onclick="filterBySection('question', event)"
+                  >
+                    <span class="sidebar-menu-icon">
+                      <img
+                        src="https://api.iconify.design/mdi:help-circle.svg?color=%239C27B0&width=32"
+                        alt="问答求助"
+                      />
+                    </span>
+                    <span class="sidebar-menu-text">问答求助</span>
+                    <span class="sidebar-menu-count" id="count-question"
+                      >0</span
+                    >
+                  </a>
+                </li>
+                <li class="sidebar-menu-item">
+                  <a
+                    href="#"
+                    class="sidebar-menu-link"
+                    data-section="share"
+                    onclick="filterBySection('share', event)"
+                  >
+                    <span class="sidebar-menu-icon">
+                      <img
+                        src="https://api.iconify.design/mdi:share-variant.svg?color=%23FF9800&width=32"
+                        alt="资源分享"
+                      />
+                    </span>
+                    <span class="sidebar-menu-text">资源分享</span>
+                    <span class="sidebar-menu-count" id="count-share">0</span>
+                  </a>
+                </li>
+                <li class="sidebar-menu-item">
+                  <a
+                    href="#"
+                    class="sidebar-menu-link"
+                    data-section="announce"
+                    onclick="filterBySection('announce', event)"
+                  >
+                    <span class="sidebar-menu-icon">
+                      <img
+                        src="https://api.iconify.design/mdi:bullhorn.svg?color=%23F44336&width=32"
+                        alt="公告通知"
+                      />
+                    </span>
+                    <span class="sidebar-menu-text">公告通知</span>
+                    <span class="sidebar-menu-count" id="count-announce"
+                      >0</span
+                    >
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content-area">
+          <div class="page-header">
+            <h1 class="page-title" id="sectionTitle">全部帖子</h1>
+            <p class="page-description" id="sectionDescription">浏览所有板块的最新帖子</p>
+          </div>
+
+          <div class="post-list" id="postList">
+            <!-- Posts will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Sidebar Toggle (Mobile) -->
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+    <div
+      class="sidebar-overlay"
+      id="sidebarOverlay"
+      onclick="toggleSidebar()"
+    ></div>
+
+    <!-- Floating Action Button -->
+    <button
+      class="fab"
+      onclick="window.location.href='post-new.html'"
+      title="发布新帖"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+    </button>
+
+    <script src="../js/common.js"></script>
+    <script>
+      // Check authentication
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (!currentUser) {
+        window.location.href = "login.html";
+      }
+
+      // Update navbar with user info
+      document.getElementById("navAvatar").src = currentUser.avatar;
+      document.getElementById("navUsername").textContent = currentUser.nickname;
+
+      // Show admin link if user is admin
+      if (currentUser.role === "admin") {
+        document.getElementById("adminLink").style.display = "flex";
+        document.getElementById("adminDivider").style.display = "block";
+      }
+
+      // Section definitions
+      const sections = {
+        all: { name: "全部", icon: "grid" },
+        tech: { name: "技术交流", icon: "code" },
+        design: { name: "设计分享", icon: "pen-tool" },
+        discuss: { name: "综合讨论", icon: "message" },
+        question: { name: "问答求助", icon: "help" },
+        share: { name: "资源分享", icon: "share" },
+        announce: { name: "公告通知", icon: "bell" },
+      };
+
+      // Mock post data with sections
+      const mockPosts = [
+        {
+          id: 1,
+          title: "欢迎来到 Open436 论坛！",
+          content:
+            "这是一个基于 Clean Design 设计规范构建的现代化论坛系统。我们致力于为用户提供简洁、高效、美观的交流平台。在这里，你可以分享技术心得、讨论问题、结识志同道合的朋友。论坛采用了最新的 Web 技术栈，包括响应式设计、Material Design 风格、以及完善的用户体验优化。无论你是前端开发者、后端工程师、UI设计师还是产品经理，都能在这里找到属于自己的交流空间。我们鼓励高质量的技术讨论，反对灌水和广告。让我们一起构建一个友好、专业的技术社区！",
+          section: "announce",
+          author: {
+            id: 1,
+            nickname: "管理员",
+            avatar:
+              "https://ui-avatars.com/api/?name=Admin&background=1976D2&color=fff",
+          },
+          createdAt: new Date(Date.now() - 3600000).toISOString(),
+          views: 1234,
+          replies: 56,
+          likes: 89,
+          isPinned: true,
+          isLiked: false,
+        },
+        {
+          id: 2,
+          title: "JavaScript 异步编程最佳实践",
+          content:
+            "在现代 JavaScript 开发中，异步编程是不可避免的。本文将介绍 Promise、async/await 等异步编程模式的最佳实践，帮助你写出更优雅、更易维护的异步代码。我们将从基础概念开始，逐步深入到高级用法和常见陷阱。首先，让我们回顾一下 JavaScript 的事件循环机制，理解为什么需要异步编程。然后我们会详细讲解 Promise 的三种状态、链式调用、错误处理等核心概念。接着深入 async/await 语法糖，学习如何用同步的方式写异步代码。最后，我们会探讨并发控制、Promise.all、Promise.race 等高级技巧，以及如何避免常见的内存泄漏问题。",
+          section: "tech",
+          author: {
+            id: 2,
+            nickname: "前端开发者",
+            avatar:
+              "https://ui-avatars.com/api/?name=Dev&background=4CAF50&color=fff",
+          },
+          createdAt: new Date(Date.now() - 7200000).toISOString(),
+          views: 856,
+          replies: 23,
+          likes: 45,
+          isPinned: false,
+          isLiked: true,
+        },
+        {
+          id: 3,
+          title: "CSS Grid 布局完全指南",
+          content:
+            "CSS Grid 是一个强大的二维布局系统，它改变了我们构建网页布局的方式。本指南将详细介绍 Grid 的核心概念、属性和实际应用场景，让你快速掌握这个现代布局利器。与 Flexbox 不同，Grid 可以同时处理行和列，让复杂布局变得简单直观。我们会从基础的网格容器和网格项开始，讲解 grid-template-columns、grid-template-rows 等属性的使用。然后深入网格线命名、网格区域、自动填充等高级特性。最后通过实际案例，展示如何用 Grid 实现响应式布局、圣杯布局、瀑布流等常见需求。",
+          section: "design",
+          author: {
+            id: 3,
+            nickname: "UI设计师",
+            avatar:
+              "https://ui-avatars.com/api/?name=UI&background=FF6F00&color=fff",
+          },
+          createdAt: new Date(Date.now() - 14400000).toISOString(),
+          views: 645,
+          replies: 18,
+          likes: 32,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 4,
+          title: "Node.js 性能优化技巧",
+          content:
+            "随着 Node.js 应用规模的增长，性能优化变得越来越重要。本文分享一些实用的性能优化技巧，包括内存管理、异步 I/O 优化、缓存策略等，帮助你构建高性能的 Node.js 应用。我们会从 V8 引擎的工作原理讲起，理解垃圾回收机制和内存泄漏的常见原因。然后探讨如何使用 Stream 处理大文件，避免内存溢出。接着介绍 Redis、Memcached 等缓存方案，以及如何设计合理的缓存策略。最后讨论集群模式、负载均衡、数据库连接池等企业级优化方案。通过这些技巧，你可以将应用性能提升数倍。",
+          section: "tech",
+          author: {
+            id: 4,
+            nickname: "后端工程师",
+            avatar:
+              "https://ui-avatars.com/api/?name=BE&background=9C27B0&color=fff",
+          },
+          createdAt: new Date(Date.now() - 21600000).toISOString(),
+          views: 423,
+          replies: 12,
+          likes: 28,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 5,
+          title: "React Hooks 深入理解",
+          content:
+            "React Hooks 彻底改变了我们编写 React 组件的方式。本文将深入探讨 useState、useEffect、useContext 等常用 Hooks 的原理和使用技巧，以及如何创建自定义 Hooks 来复用逻辑。我们会从 Hooks 的设计动机开始，理解为什么 React 团队要引入这个新特性。然后详细讲解每个内置 Hook 的使用场景和注意事项，比如 useEffect 的依赖数组、useCallback 的性能优化、useMemo 的使用时机等。接着学习如何编写自定义 Hooks，将组件逻辑抽取为可复用的函数。最后探讨 Hooks 的最佳实践和常见陷阱，帮助你写出更优雅的 React 代码。",
+          section: "tech",
+          author: {
+            id: 5,
+            nickname: "React开发者",
+            avatar:
+              "https://ui-avatars.com/api/?name=React&background=61DAFB&color=000",
+          },
+          createdAt: new Date(Date.now() - 28800000).toISOString(),
+          views: 789,
+          replies: 34,
+          likes: 67,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 6,
+          title: "如何解决 CSS 浮动问题？",
+          content:
+            "在使用 CSS 浮动布局时遇到了一些问题，父元素高度塌陷，求助大家有什么好的解决方案吗？我尝试了 overflow: hidden 和 clearfix 方法，但是在某些情况下还是会出现问题。特别是当浮动元素的高度不确定时，父元素就无法正确包裹子元素。有没有更优雅的解决方案？或者说现在是不是应该完全放弃浮动，改用 Flexbox 或 Grid 布局？希望有经验的前辈能分享一下最佳实践。",
+          section: "question",
+          author: {
+            id: 6,
+            nickname: "新手开发者",
+            avatar:
+              "https://ui-avatars.com/api/?name=New&background=FF5722&color=fff",
+          },
+          createdAt: new Date(Date.now() - 36000000).toISOString(),
+          views: 234,
+          replies: 8,
+          likes: 12,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 7,
+          title: "分享一些优秀的设计资源网站",
+          content:
+            "整理了一些我常用的设计资源网站，包括图标、字体、配色、灵感等，希望对大家有帮助。首先是图标资源，推荐 Feather Icons、Heroicons、Lucide 等，都是高质量的开源图标库。字体方面，Google Fonts 和 Adobe Fonts 提供了大量免费字体。配色工具推荐 Coolors、Adobe Color、Paletton，可以快速生成和谐的配色方案。设计灵感可以去 Dribbble、Behance、Pinterest 寻找。UI 组件库推荐 shadcn/ui、Radix UI、Headless UI。这些资源都是我在实际项目中经常使用的，质量有保证。",
+          section: "share",
+          author: {
+            id: 7,
+            nickname: "设计爱好者",
+            avatar:
+              "https://ui-avatars.com/api/?name=Design&background=E91E63&color=fff",
+          },
+          createdAt: new Date(Date.now() - 43200000).toISOString(),
+          views: 567,
+          replies: 15,
+          likes: 43,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 8,
+          title: "关于前端发展趋势的一些思考",
+          content:
+            "最近在思考前端技术的发展方向，从框架到工具链，从性能优化到用户体验，分享一些个人的看法和观点。首先，我认为前端框架会继续朝着更轻量、更快速的方向发展，比如 Svelte、Solid.js 等新兴框架。其次，TypeScript 会成为标配，类型安全越来越重要。第三，构建工具会更加智能化，Vite、Turbopack 等新工具大幅提升了开发体验。第四，Web Components 和微前端架构会得到更广泛的应用。最后，AI 辅助开发会改变我们的工作方式，但核心的编程思维和问题解决能力仍然是最重要的。",
+          section: "discuss",
+          author: {
+            id: 8,
+            nickname: "技术博主",
+            avatar:
+              "https://ui-avatars.com/api/?name=Tech&background=3F51B5&color=fff",
+          },
+          createdAt: new Date(Date.now() - 50400000).toISOString(),
+          views: 892,
+          replies: 27,
+          likes: 56,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 9,
+          title: "TypeScript 高级类型系统详解",
+          content: "TypeScript 的类型系统非常强大，本文将深入讲解泛型、条件类型、映射类型、工具类型等高级特性。通过实际案例展示如何利用类型系统提高代码质量和开发效率。",
+          section: "tech",
+          author: { id: 9, nickname: "TS专家", avatar: "https://ui-avatars.com/api/?name=TS&background=3178C6&color=fff" },
+          createdAt: new Date(Date.now() - 57600000).toISOString(),
+          views: 543,
+          replies: 19,
+          likes: 38,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 10,
+          title: "Figma 设计系统搭建指南",
+          content: "分享如何在 Figma 中搭建完整的设计系统，包括组件库、样式指南、设计规范等。让团队协作更高效，设计更统一。",
+          section: "design",
+          author: { id: 10, nickname: "产品设计师", avatar: "https://ui-avatars.com/api/?name=PD&background=F24E1E&color=fff" },
+          createdAt: new Date(Date.now() - 64800000).toISOString(),
+          views: 421,
+          replies: 14,
+          likes: 29,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 11,
+          title: "Vue 3 Composition API 实践经验",
+          content: "从 Vue 2 迁移到 Vue 3 的过程中，Composition API 是最大的变化。分享我们团队在实际项目中使用 Composition API 的经验和踩过的坑。",
+          section: "tech",
+          author: { id: 11, nickname: "Vue开发者", avatar: "https://ui-avatars.com/api/?name=Vue&background=42B883&color=fff" },
+          createdAt: new Date(Date.now() - 72000000).toISOString(),
+          views: 678,
+          replies: 25,
+          likes: 51,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 12,
+          title: "如何选择合适的前端框架？",
+          content: "React、Vue、Angular、Svelte...前端框架这么多，新项目该如何选择？从团队规模、项目需求、学习成本等角度分析。",
+          section: "question",
+          author: { id: 12, nickname: "技术选型者", avatar: "https://ui-avatars.com/api/?name=TL&background=607D8B&color=fff" },
+          createdAt: new Date(Date.now() - 79200000).toISOString(),
+          views: 892,
+          replies: 42,
+          likes: 73,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 13,
+          title: "推荐几个实用的 VS Code 插件",
+          content: "整理了我日常开发中最常用的 VS Code 插件，包括代码格式化、Git 管理、主题美化等，大幅提升开发效率。",
+          section: "share",
+          author: { id: 13, nickname: "效率达人", avatar: "https://ui-avatars.com/api/?name=EF&background=007ACC&color=fff" },
+          createdAt: new Date(Date.now() - 86400000).toISOString(),
+          views: 1234,
+          replies: 38,
+          likes: 95,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 14,
+          title: "微前端架构实践与思考",
+          content: "在大型项目中实施微前端架构的经验分享，包括技术选型、模块拆分、通信方案、部署策略等。附带完整的实践案例。",
+          section: "tech",
+          author: { id: 14, nickname: "架构师", avatar: "https://ui-avatars.com/api/?name=Arch&background=00BCD4&color=fff" },
+          createdAt: new Date(Date.now() - 93600000).toISOString(),
+          views: 567,
+          replies: 21,
+          likes: 44,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 15,
+          title: "响应式设计的最佳实践",
+          content: "从移动优先到桌面适配，详细讲解响应式设计的核心原则、断点设置、布局技巧等。让你的网站在各种设备上都有完美体验。",
+          section: "design",
+          author: { id: 15, nickname: "响应式专家", avatar: "https://ui-avatars.com/api/?name=RD&background=FF9800&color=fff" },
+          createdAt: new Date(Date.now() - 100800000).toISOString(),
+          views: 445,
+          replies: 16,
+          likes: 33,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 16,
+          title: "GraphQL vs REST API 对比分析",
+          content: "GraphQL 和 REST API 各有优劣，本文从性能、灵活性、学习成本等多个维度进行对比，帮助你选择合适的 API 设计方案。",
+          section: "discuss",
+          author: { id: 16, nickname: "API设计者", avatar: "https://ui-avatars.com/api/?name=API&background=E535AB&color=fff" },
+          createdAt: new Date(Date.now() - 108000000).toISOString(),
+          views: 723,
+          replies: 29,
+          likes: 58,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 17,
+          title: "Webpack 5 新特性详解",
+          content: "Webpack 5 带来了许多重大更新，包括模块联邦、持久化缓存、Tree Shaking 优化等。详细介绍这些新特性的使用方法和最佳实践。",
+          section: "tech",
+          author: { id: 17, nickname: "构建工具专家", avatar: "https://ui-avatars.com/api/?name=WP&background=8DD6F9&color=000" },
+          createdAt: new Date(Date.now() - 115200000).toISOString(),
+          views: 489,
+          replies: 18,
+          likes: 36,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 18,
+          title: "CSS 动画性能优化技巧",
+          content: "CSS 动画如果使用不当会导致页面卡顿。本文分享如何通过 transform、will-change、GPU 加速等技术优化动画性能。",
+          section: "design",
+          author: { id: 18, nickname: "动画工程师", avatar: "https://ui-avatars.com/api/?name=AN&background=9C27B0&color=fff" },
+          createdAt: new Date(Date.now() - 122400000).toISOString(),
+          views: 356,
+          replies: 12,
+          likes: 27,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 19,
+          title: "前端单元测试入门指南",
+          content: "单元测试对于保证代码质量非常重要。从 Jest 基础到 React Testing Library，手把手教你如何编写高质量的单元测试。",
+          section: "tech",
+          author: { id: 19, nickname: "测试工程师", avatar: "https://ui-avatars.com/api/?name=QA&background=4CAF50&color=fff" },
+          createdAt: new Date(Date.now() - 129600000).toISOString(),
+          views: 612,
+          replies: 22,
+          likes: 47,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 20,
+          title: "如何提高代码可读性？",
+          content: "代码是写给人看的，其次才是给机器执行的。分享一些提高代码可读性的技巧，包括命名规范、注释规范、代码组织等。",
+          section: "discuss",
+          author: { id: 20, nickname: "代码整洁者", avatar: "https://ui-avatars.com/api/?name=CC&background=795548&color=fff" },
+          createdAt: new Date(Date.now() - 136800000).toISOString(),
+          views: 834,
+          replies: 31,
+          likes: 64,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 21,
+          title: "Next.js 13 App Router 实战",
+          content: "Next.js 13 引入了全新的 App Router，带来了服务端组件、流式渲染等特性。通过实际项目展示如何使用这些新功能。",
+          section: "tech",
+          author: { id: 21, nickname: "Next.js开发者", avatar: "https://ui-avatars.com/api/?name=NX&background=000000&color=fff" },
+          createdAt: new Date(Date.now() - 144000000).toISOString(),
+          views: 945,
+          replies: 35,
+          likes: 78,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 22,
+          title: "UI 设计中的色彩搭配原理",
+          content: "色彩是 UI 设计的灵魂。从色彩理论到实际应用，讲解如何选择和搭配颜色，打造视觉舒适的界面。",
+          section: "design",
+          author: { id: 22, nickname: "色彩设计师", avatar: "https://ui-avatars.com/api/?name=CL&background=FF5722&color=fff" },
+          createdAt: new Date(Date.now() - 151200000).toISOString(),
+          views: 523,
+          replies: 17,
+          likes: 41,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 23,
+          title: "Docker 容器化部署实践",
+          content: "使用 Docker 容器化部署前端应用的完整流程，包括 Dockerfile 编写、镜像优化、CI/CD 集成等。",
+          section: "tech",
+          author: { id: 23, nickname: "DevOps工程师", avatar: "https://ui-avatars.com/api/?name=DO&background=2496ED&color=fff" },
+          createdAt: new Date(Date.now() - 158400000).toISOString(),
+          views: 678,
+          replies: 24,
+          likes: 52,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 24,
+          title: "前端性能监控方案对比",
+          content: "对比几种主流的前端性能监控方案，包括 Google Analytics、Sentry、自建监控系统等，分析各自的优缺点。",
+          section: "discuss",
+          author: { id: 24, nickname: "性能优化师", avatar: "https://ui-avatars.com/api/?name=PF&background=FFC107&color=000" },
+          createdAt: new Date(Date.now() - 165600000).toISOString(),
+          views: 456,
+          replies: 19,
+          likes: 37,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 25,
+          title: "Tailwind CSS 使用心得",
+          content: "Tailwind CSS 是一个实用优先的 CSS 框架。分享使用 Tailwind 的优缺点、配置技巧、以及与传统 CSS 的对比。",
+          section: "tech",
+          author: { id: 25, nickname: "CSS爱好者", avatar: "https://ui-avatars.com/api/?name=TW&background=06B6D4&color=fff" },
+          createdAt: new Date(Date.now() - 172800000).toISOString(),
+          views: 789,
+          replies: 28,
+          likes: 61,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 26,
+          title: "移动端适配方案总结",
+          content: "总结几种常见的移动端适配方案，包括 rem、vw/vh、flexible.js 等，分析各自的适用场景和注意事项。",
+          section: "question",
+          author: { id: 26, nickname: "移动端开发者", avatar: "https://ui-avatars.com/api/?name=MB&background=673AB7&color=fff" },
+          createdAt: new Date(Date.now() - 180000000).toISOString(),
+          views: 567,
+          replies: 21,
+          likes: 45,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 27,
+          title: "分享一些免费的 API 接口",
+          content: "整理了一些免费的公共 API 接口，包括天气、新闻、图片、音乐等，适合用来做练手项目。",
+          section: "share",
+          author: { id: 27, nickname: "资源分享者", avatar: "https://ui-avatars.com/api/?name=RS&background=009688&color=fff" },
+          createdAt: new Date(Date.now() - 187200000).toISOString(),
+          views: 1123,
+          replies: 45,
+          likes: 102,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 28,
+          title: "Web 无障碍设计指南",
+          content: "无障碍设计让更多人能够使用你的网站。介绍 ARIA 属性、键盘导航、屏幕阅读器适配等无障碍设计要点。",
+          section: "design",
+          author: { id: 28, nickname: "无障碍专家", avatar: "https://ui-avatars.com/api/?name=A11Y&background=4CAF50&color=fff" },
+          createdAt: new Date(Date.now() - 194400000).toISOString(),
+          views: 345,
+          replies: 13,
+          likes: 28,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 29,
+          title: "前端工程化实践总结",
+          content: "从代码规范、Git 工作流、自动化测试到 CI/CD，全面介绍前端工程化的各个方面。附带团队实践经验。",
+          section: "tech",
+          author: { id: 29, nickname: "工程化专家", avatar: "https://ui-avatars.com/api/?name=ENG&background=FF6F00&color=fff" },
+          createdAt: new Date(Date.now() - 201600000).toISOString(),
+          views: 892,
+          replies: 33,
+          likes: 71,
+          isPinned: false,
+          isLiked: false,
+        },
+        {
+          id: 30,
+          title: "Monorepo 项目管理实践",
+          content: "使用 pnpm workspace、Turborepo 等工具管理 Monorepo 项目的经验分享。包括依赖管理、构建优化、版本发布等。",
+          section: "tech",
+          author: { id: 30, nickname: "项目管理者", avatar: "https://ui-avatars.com/api/?name=PM&background=1976D2&color=fff" },
+          createdAt: new Date(Date.now() - 208800000).toISOString(),
+          views: 634,
+          replies: 26,
+          likes: 54,
+          isPinned: false,
+          isLiked: false,
+        },
+      ];
+
+      // Current filter and pagination
+      let currentSection = "all";
+      let currentPage = 1;
+      const postsPerPage = 10;
+      let isLoading = false;
+      let hasMorePosts = true;
+
+      // Get section color
+      function getSectionColor(section) {
+        const colors = {
+          tech: "1976D2",
+          design: "FF6F00",
+          discuss: "4CAF50",
+          question: "9C27B0",
+          share: "FF9800",
+          announce: "F44336",
+        };
+        return colors[section] || "1976D2";
+      }
+
+      // Get section icon URL
+      function getSectionIcon(section) {
+        const icons = {
+          all: "mdi:view-grid",
+          tech: "mdi:code-braces",
+          design: "mdi:palette",
+          discuss: "mdi:forum",
+          question: "mdi:help-circle",
+          share: "mdi:share-variant",
+          announce: "mdi:bullhorn",
+        };
+        const icon = icons[section] || icons.all;
+        const color = getSectionColor(section);
+        return `https://api.iconify.design/${icon}.svg?color=%23${color}&width=32`;
+      }
+
+      // Update section counts
+      function updateSectionCounts() {
+        const counts = { all: mockPosts.length };
+
+        Object.keys(sections).forEach((key) => {
+          if (key !== "all") {
+            counts[key] = mockPosts.filter((p) => p.section === key).length;
+          }
+        });
+
+        Object.keys(counts).forEach((key) => {
+          const countEl = document.getElementById(`count-${key}`);
+          if (countEl) {
+            countEl.textContent = counts[key];
+          }
+        });
+      }
+
+      // Filter posts by section
+      function filterBySection(section, event) {
+        if (event) {
+          event.preventDefault();
+        }
+
+        currentSection = section;
+
+        // Update active state
+        document.querySelectorAll(".sidebar-menu-link").forEach((link) => {
+          link.classList.remove("active");
+        });
+        event.target.closest(".sidebar-menu-link").classList.add("active");
+
+        // Update title and description
+        const descriptions = {
+          all: "浏览所有板块的最新帖子",
+          tech: "分享技术经验，探讨编程问题",
+          design: "展示设计作品，交流设计理念",
+          discuss: "畅所欲言，讨论各种话题",
+          question: "提出问题，寻求帮助和建议",
+          share: "分享优质资源，共同学习进步",
+          announce: "查看论坛公告和重要通知"
+        };
+        
+        document.getElementById("sectionTitle").textContent =
+          section === "all" ? "全部帖子" : sections[section].name;
+        document.getElementById("sectionDescription").textContent =
+          descriptions[section] || descriptions.all;
+
+        // Render filtered posts with reset
+        renderPosts(true);
+
+        // Close mobile sidebar
+        if (window.innerWidth <= 959) {
+          toggleSidebar();
+        }
+      }
+
+      // Get filtered posts
+      function getFilteredPosts() {
+        return currentSection === "all"
+          ? mockPosts
+          : mockPosts.filter((p) => p.section === currentSection);
+      }
+
+      // Render posts with pagination
+      function renderPosts(reset = false) {
+        const postList = document.getElementById("postList");
+        
+        if (reset) {
+          currentPage = 1;
+          hasMorePosts = true;
+          postList.innerHTML = '';
+        }
+
+        const filteredPosts = getFilteredPosts();
+
+        if (filteredPosts.length === 0) {
+          postList.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <p>该板块还没有帖子</p>
+          </div>
+        `;
+          return;
+        }
+
+        // Calculate pagination
+        const startIndex = (currentPage - 1) * postsPerPage;
+        const endIndex = startIndex + postsPerPage;
+        const postsToShow = filteredPosts.slice(startIndex, endIndex);
+        
+        // Check if there are more posts
+        hasMorePosts = endIndex < filteredPosts.length;
+
+        // Render posts
+        const postsHTML = postsToShow
+          .map(
+            (post) => `
+        <div class="post-card ${
+          post.isPinned ? "pinned" : ""
+        }" onclick="viewPost(${post.id})">
+          <div class="post-header">
+            <img src="${getSectionIcon(post.section)}" alt="${
+              sections[post.section].name
+            }" class="section-icon">
+            <span class="section-badge ${post.section}">r/${
+              sections[post.section].name
+            }</span>
+            <span class="post-author-name">u/${post.author.nickname}</span>
+            <span class="post-time">${formatDate(post.createdAt)}</span>
+            ${
+              post.isPinned
+                ? '<span class="badge badge-warning" style="margin-left: 8px;">置顶</span>'
+                : ""
+            }
+          </div>
+          
+          <h2 class="post-title">${post.title}</h2>
+          <div class="post-content-preview">${post.content}</div>
+          
+          <div class="post-footer">
+            <div class="post-stat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 10l5 5 5-5"></path>
+                <path d="M7 14l5-5 5 5"></path>
+              </svg>
+              ${post.likes}
+            </div>
+            <div class="post-stat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              ${post.replies} 评论
+            </div>
+            <div class="post-stat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                <polyline points="16 6 12 2 8 6"></polyline>
+                <line x1="12" y1="2" x2="12" y2="15"></line>
+              </svg>
+              分享
+            </div>
+          </div>
+        </div>
+      `
+          )
+          .join("");
+
+        postList.insertAdjacentHTML('beforeend', postsHTML);
+
+        // Show or hide loading indicator
+        updateLoadingIndicator();
+      }
+
+      // Load more posts
+      function loadMorePosts() {
+        if (isLoading || !hasMorePosts) return;
+
+        isLoading = true;
+        showLoadingIndicator();
+
+        // Simulate network delay (shorter for better UX)
+        setTimeout(() => {
+          currentPage++;
+          renderPosts(false);
+          isLoading = false;
+          hideLoadingIndicator();
+        }, 500);
+      }
+
+      // Hide loading indicator
+      function hideLoadingIndicator() {
+        const loader = document.getElementById('loading-indicator');
+        if (loader && isLoading === false) {
+          loader.remove();
+        }
+      }
+
+      // Show loading indicator
+      function showLoadingIndicator() {
+        const postList = document.getElementById("postList");
+        const existingLoader = document.getElementById('loading-indicator');
+        
+        if (!existingLoader) {
+          const loader = document.createElement('div');
+          loader.id = 'loading-indicator';
+          loader.style.cssText = 'text-align: center; padding: 40px 0; color: var(--text-secondary);';
+          loader.innerHTML = `
+            <div style="display: inline-block;">
+              <svg width="40" height="40" viewBox="0 0 50 50" style="animation: spin 1s linear infinite;">
+                <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="4" stroke-dasharray="31.4 31.4" stroke-linecap="round"></circle>
+              </svg>
+              <p style="margin-top: 12px; font-size: 14px;">加载中...</p>
+            </div>
+            <style>
+              @keyframes spin {
+                to { transform: rotate(360deg); }
+              }
+            </style>
+          `;
+          postList.appendChild(loader);
+        }
+      }
+
+      // Update loading indicator
+      function updateLoadingIndicator() {
+        const postList = document.getElementById("postList");
+        const existingEndMessage = document.getElementById('end-message');
+        
+        if (!hasMorePosts && !existingEndMessage) {
+          const endMessage = document.createElement('div');
+          endMessage.id = 'end-message';
+          endMessage.style.cssText = 'text-align: center; padding: 40px 0; color: var(--text-secondary); font-size: 14px;';
+          endMessage.innerHTML = '<p>已经到底了 ~</p>';
+          postList.appendChild(endMessage);
+        }
+      }
+
+      // Infinite scroll handler
+      function handleScroll() {
+        if (isLoading || !hasMorePosts) return;
+
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+
+        // Load more when user scrolls to 80% of the page
+        if (scrollTop + windowHeight >= documentHeight - 500) {
+          loadMorePosts();
+        }
+      }
+
+      // Toggle mobile sidebar
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+
+        sidebar.classList.toggle("active");
+        overlay.classList.toggle("active");
+      }
+
+      function viewPost(postId) {
+        window.location.href = `post-detail.html?id=${postId}`;
+      }
+
+      function handleSearch(event) {
+        if (event.key === "Enter") {
+          const query = event.target.value;
+          if (query.trim()) {
+            window.location.href = `search.html?q=${encodeURIComponent(query)}`;
+          }
+        }
+      }
+
+      function logout() {
+        showConfirm("确定要退出登录吗？", () => {
+          localStorage.removeItem("currentUser");
+          window.location.href = "login.html";
+        });
+      }
+
+      // Initialize
+      updateSectionCounts();
+      renderPosts(true);
+      
+      // Add scroll event listener for infinite scroll
+      window.addEventListener('scroll', handleScroll);
+    </script>
+  </body>
+</html>

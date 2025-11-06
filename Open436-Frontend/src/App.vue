@@ -1,11 +1,15 @@
 <template>
-  <div id="app">
-    <router-view />
-  </div>
+  <n-config-provider>
+    <n-message-provider>
+      <div id="app">
+        <router-view />
+      </div>
+    </n-message-provider>
+  </n-config-provider>
 </template>
 
 <script setup>
-// 应用根组件
+import { NConfigProvider, NMessageProvider } from 'naive-ui'
 </script>
 
 <style>

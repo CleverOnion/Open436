@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>系统设置 - Open436 论坛</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    body {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 260px;
+      background: var(--background);
+      border-right: 1px solid var(--divider);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      padding: var(--space-lg);
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .sidebar-logo {
+      width: 36px;
+      height: 36px;
+      background: var(--primary);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      padding: var(--space-lg);
+    }
+
+    .menu-section {
+      margin-bottom: var(--space-xl);
+    }
+
+    .menu-section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: var(--space-sm);
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-sm) var(--space-base);
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+      margin-bottom: var(--space-xs);
+    }
+
+    .menu-item:hover {
+      background: var(--background-secondary);
+      color: var(--text-primary);
+    }
+
+    .menu-item.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .menu-item svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .sidebar-footer {
+      padding: var(--space-lg);
+      border-top: 1px solid var(--divider);
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      padding: var(--space-xl);
+      background: var(--background-secondary);
+    }
+
+    .page-header {
+      margin-bottom: var(--space-xl);
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .page-description {
+      color: var(--text-secondary);
+    }
+
+    .settings-container {
+      max-width: 800px;
+    }
+
+    .settings-section {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: var(--space-xl);
+      margin-bottom: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .settings-section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-base);
+      padding-bottom: var(--space-base);
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-base) 0;
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+
+    .setting-info {
+      flex: 1;
+    }
+
+    .setting-label {
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .setting-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .setting-control {
+      margin-left: var(--space-lg);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 48px;
+      height: 24px;
+      background: var(--divider);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle-switch.active {
+      background: var(--primary);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(24px);
+    }
+
+    .form-group {
+      margin-bottom: var(--space-lg);
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: var(--space-sm) var(--space-base);
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+    }
+
+    .form-textarea {
+      width: 100%;
+      padding: var(--space-sm) var(--space-base);
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .form-select {
+      width: 100%;
+      padding: var(--space-sm) var(--space-base);
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      background: white;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: var(--space-base);
+      justify-content: flex-end;
+      margin-top: var(--space-xl);
+    }
+
+    @media (max-width: 959px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s;
+        z-index: 1000;
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">
+        <div class="sidebar-logo">O</div>
+        <span>管理后台</span>
+      </a>
+    </div>
+
+    <nav class="sidebar-menu">
+      <div class="menu-section">
+        <div class="menu-section-title">概览</div>
+        <a href="dashboard.html" class="menu-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>仪表盘</span>
+        </a>
+      </div>
+
+      <div class="menu-section">
+        <div class="menu-section-title">内容管理</div>
+        <a href="posts.html" class="menu-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          <span>帖子管理</span>
+        </a>
+        <a href="comments.html" class="menu-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span>评论管理</span>
+        </a>
+      </div>
+
+      <div class="menu-section">
+        <div class="menu-section-title">用户管理</div>
+        <a href="users.html" class="menu-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>用户列表</span>
+        </a>
+      </div>
+
+      <div class="menu-section">
+        <div class="menu-section-title">系统</div>
+        <a href="settings.html" class="menu-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6m5.2-13.2l-4.2 4.2m0 6l4.2 4.2M23 12h-6m-6 0H1m18.2 5.2l-4.2-4.2m-6 0l-4.2 4.2"></path>
+          </svg>
+          <span>系统设置</span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="../pages/home.html" class="btn btn-text btn-block">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; margin-right: 8px;">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        返回前台
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">系统设置</h1>
+      <p class="page-description">配置论坛的基本设置和功能选项</p>
+    </div>
+
+    <div class="settings-container">
+      <!-- Basic Settings -->
+      <div class="settings-section">
+        <h2 class="settings-section-title">基本设置</h2>
+        
+        <div class="form-group">
+          <label class="form-label">网站名称</label>
+          <input type="text" class="form-input" value="Open436 论坛" id="siteName">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">网站描述</label>
+          <textarea class="form-textarea" id="siteDescription">一个基于 Clean Design 设计规范构建的现代化论坛系统</textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">网站关键词</label>
+          <input type="text" class="form-input" value="论坛,技术交流,设计分享" id="siteKeywords">
+        </div>
+      </div>
+
+      <!-- Feature Settings -->
+      <div class="settings-section">
+        <h2 class="settings-section-title">功能设置</h2>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label">用户注册</div>
+            <div class="setting-description">允许新用户注册账号</div>
+          </div>
+          <div class="setting-control">
+            <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label">邮箱验证</div>
+            <div class="setting-description">新用户注册时需要验证邮箱</div>
+          </div>
+          <div class="setting-control">
+            <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label">评论审核</div>
+            <div class="setting-description">新发布的评论需要管理员审核</div>
+          </div>
+          <div class="setting-control">
+            <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label">匿名访问</div>
+            <div class="setting-description">允许未登录用户浏览内容</div>
+          </div>
+          <div class="setting-control">
+            <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Settings -->
+      <div class="settings-section">
+        <h2 class="settings-section-title">内容设置</h2>
+        
+        <div class="form-group">
+          <label class="form-label">每页显示帖子数</label>
+          <input type="number" class="form-input" value="10" min="5" max="50" id="postsPerPage">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">标题最大长度</label>
+          <input type="number" class="form-input" value="100" min="20" max="200" id="titleMaxLength">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">内容最大长度</label>
+          <input type="number" class="form-input" value="10000" min="100" max="50000" id="contentMaxLength">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">默认排序方式</label>
+          <select class="form-select" id="defaultSort">
+            <option value="latest">最新发布</option>
+            <option value="hot">最热门</option>
+            <option value="replies">最多回复</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Security Settings -->
+      <div class="settings-section">
+        <h2 class="settings-section-title">安全设置</h2>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label">防止暴力破解</div>
+            <div class="setting-description">限制登录失败次数</div>
+          </div>
+          <div class="setting-control">
+            <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-label">验证码保护</div>
+            <div class="setting-description">登录和注册时需要验证码</div>
+          </div>
+          <div class="setting-control">
+            <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: var(--space-lg);">
+          <label class="form-label">会话超时时间（分钟）</label>
+          <input type="number" class="form-input" value="30" min="5" max="1440" id="sessionTimeout">
+        </div>
+      </div>
+
+      <!-- Email Settings -->
+      <div class="settings-section">
+        <h2 class="settings-section-title">邮件设置</h2>
+        
+        <div class="form-group">
+          <label class="form-label">SMTP 服务器</label>
+          <input type="text" class="form-input" placeholder="smtp.example.com" id="smtpServer">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">SMTP 端口</label>
+          <input type="number" class="form-input" value="587" id="smtpPort">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">发件人邮箱</label>
+          <input type="email" class="form-input" placeholder="noreply@example.com" id="senderEmail">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">发件人名称</label>
+          <input type="text" class="form-input" value="Open436 论坛" id="senderName">
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <div class="form-actions">
+        <button class="btn btn-text" onclick="resetSettings()">重置</button>
+        <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/common.js"></script>
+  <script>
+    // Check admin permission
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser || currentUser.role !== 'admin') {
+      window.location.href = '../pages/home.html';
+    }
+
+    function toggleSwitch(element) {
+      element.classList.toggle('active');
+    }
+
+    function saveSettings() {
+      // Collect all settings
+      const settings = {
+        siteName: document.getElementById('siteName').value,
+        siteDescription: document.getElementById('siteDescription').value,
+        siteKeywords: document.getElementById('siteKeywords').value,
+        postsPerPage: document.getElementById('postsPerPage').value,
+        titleMaxLength: document.getElementById('titleMaxLength').value,
+        contentMaxLength: document.getElementById('contentMaxLength').value,
+        defaultSort: document.getElementById('defaultSort').value,
+        sessionTimeout: document.getElementById('sessionTimeout').value,
+        smtpServer: document.getElementById('smtpServer').value,
+        smtpPort: document.getElementById('smtpPort').value,
+        senderEmail: document.getElementById('senderEmail').value,
+        senderName: document.getElementById('senderName').value
+      };
+
+      // Save to localStorage (in real app, this would be an API call)
+      localStorage.setItem('forumSettings', JSON.stringify(settings));
+      
+      showToast('设置已保存', 'success');
+    }
+
+    function resetSettings() {
+      showConfirm('确定要重置所有设置吗？', () => {
+        location.reload();
+      });
+    }
+
+    // Load saved settings
+    function loadSettings() {
+      const savedSettings = localStorage.getItem('forumSettings');
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        
+        document.getElementById('siteName').value = settings.siteName || '';
+        document.getElementById('siteDescription').value = settings.siteDescription || '';
+        document.getElementById('siteKeywords').value = settings.siteKeywords || '';
+        document.getElementById('postsPerPage').value = settings.postsPerPage || 10;
+        document.getElementById('titleMaxLength').value = settings.titleMaxLength || 100;
+        document.getElementById('contentMaxLength').value = settings.contentMaxLength || 10000;
+        document.getElementById('defaultSort').value = settings.defaultSort || 'latest';
+        document.getElementById('sessionTimeout').value = settings.sessionTimeout || 30;
+        document.getElementById('smtpServer').value = settings.smtpServer || '';
+        document.getElementById('smtpPort').value = settings.smtpPort || 587;
+        document.getElementById('senderEmail').value = settings.senderEmail || '';
+        document.getElementById('senderName').value = settings.senderName || '';
+      }
+    }
+
+    // Initialize
+    loadSettings();
+  </script>
+</body>
+</html>

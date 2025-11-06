@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>举报管理 - Open436 论坛</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    body {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 260px;
+      background: var(--background);
+      border-right: 1px solid var(--divider);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      padding: var(--space-lg);
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .sidebar-logo {
+      width: 36px;
+      height: 36px;
+      background: var(--primary);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      padding: var(--space-lg);
+    }
+
+    .menu-section {
+      margin-bottom: var(--space-xl);
+    }
+
+    .menu-section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: var(--space-sm);
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-sm) var(--space-base);
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+      margin-bottom: var(--space-xs);
+    }
+
+    .menu-item:hover {
+      background: var(--background-secondary);
+      color: var(--text-primary);
+    }
+
+    .menu-item.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .menu-item svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .sidebar-footer {
+      padding: var(--space-lg);
+      border-top: 1px solid var(--divider);
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      padding: var(--space-xl);
+      background: var(--background-secondary);
+    }
+
+    .page-header {
+      margin-bottom: var(--space-xl);
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .page-description {
+      color: var(--text-secondary);
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-lg);
+      gap: var(--space-base);
+    }
+
+    .filter-group {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    .filter-btn {
+      padding: var(--space-sm) var(--space-base);
+      border: 1px solid var(--divider);
+      background: white;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .filter-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .data-table {
+      background: white;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: var(--background-secondary);
+    }
+
+    th {
+      padding: var(--space-base) var(--space-lg);
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: var(--space-base) var(--space-lg);
+      border-top: 1px solid var(--divider);
+    }
+
+    tbody tr:hover {
+      background: var(--background-secondary);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge-warning {
+      background: rgba(255, 152, 0, 0.1);
+      color: var(--warning);
+    }
+
+    .badge-danger {
+      background: rgba(244, 67, 54, 0.1);
+      color: var(--error);
+    }
+
+    .badge-success {
+      background: rgba(76, 175, 80, 0.1);
+      color: var(--success);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: var(--space-xs);
+    }
+
+    .btn-sm {
+      padding: 4px 12px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 959px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s;
+        z-index: 1000;
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="sidebar-brand">
+        <div class="sidebar-logo">O</div>
+        <span>管理后台</span>
+      </a>
+    </div>
+
+    <nav class="sidebar-menu">
+      <div class="menu-section">
+        <div class="menu-section-title">概览</div>
+        <a href="dashboard.html" class="menu-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>仪表盘</span>
+        </a>
+      </div>
+
+      <div class="menu-section">
+        <div class="menu-section-title">内容管理</div>
+        <a href="sections.html" class="menu-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          <span>板块管理</span>
+        </a>
+        <a href="posts.html" class="menu-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          <span>帖子管理</span>
+        </a>
+        <a href="comments.html" class="menu-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span>评论管理</span>
+        </a>
+        <a href="reports.html" class="menu-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <span>举报管理</span>
+        </a>
+      </div>
+
+      <div class="menu-section">
+        <div class="menu-section-title">用户管理</div>
+        <a href="users.html" class="menu-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>用户列表</span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="../pages/home.html" class="btn btn-text btn-block">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; margin-right: 8px;">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        返回前台
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">举报管理</h1>
+      <p class="page-description">处理用户举报的内容和违规行为</p>
+    </div>
+
+    <div class="toolbar">
+      <div class="filter-group">
+        <button class="filter-btn active" onclick="filterReports('all')">全部</button>
+        <button class="filter-btn" onclick="filterReports('pending')">待处理</button>
+        <button class="filter-btn" onclick="filterReports('resolved')">已处理</button>
+        <button class="filter-btn" onclick="filterReports('rejected')">已驳回</button>
+      </div>
+    </div>
+
+    <div class="data-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>举报类型</th>
+            <th>被举报内容</th>
+            <th>举报原因</th>
+            <th>举报人</th>
+            <th>举报时间</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="reportsTable">
+          <!-- Reports will be loaded here -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="../js/common.js"></script>
+  <script>
+    // Check admin permission
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser || currentUser.role !== 'admin') {
+      window.location.href = '../pages/home.html';
+    }
+
+    // Mock reports data
+    const reports = [
+      {
+        id: 1,
+        type: 'post',
+        contentId: 15,
+        contentTitle: '这是一个垃圾广告帖子',
+        reason: '垃圾广告',
+        description: '内容全是推广链接',
+        reporter: { id: 5, nickname: '热心用户A' },
+        reportedAt: new Date(Date.now() - 3600000).toISOString(),
+        status: 'pending'
+      },
+      {
+        id: 2,
+        type: 'comment',
+        contentId: 89,
+        contentTitle: '人身攻击的评论',
+        reason: '人身攻击',
+        description: '辱骂其他用户',
+        reporter: { id: 8, nickname: '热心用户B' },
+        reportedAt: new Date(Date.now() - 7200000).toISOString(),
+        status: 'pending'
+      },
+      {
+        id: 3,
+        type: 'post',
+        contentId: 23,
+        contentTitle: '涉及政治敏感内容',
+        reason: '违规内容',
+        description: '包含不当政治言论',
+        reporter: { id: 12, nickname: '热心用户C' },
+        reportedAt: new Date(Date.now() - 14400000).toISOString(),
+        status: 'resolved'
+      },
+      {
+        id: 4,
+        type: 'user',
+        contentId: 45,
+        contentTitle: '用户：恶意用户123',
+        reason: '恶意行为',
+        description: '频繁发布垃圾内容',
+        reporter: { id: 3, nickname: '热心用户D' },
+        reportedAt: new Date(Date.now() - 21600000).toISOString(),
+        status: 'resolved'
+      },
+      {
+        id: 5,
+        type: 'comment',
+        contentId: 156,
+        contentTitle: '误报的评论',
+        reason: '其他',
+        description: '认为不合适',
+        reporter: { id: 9, nickname: '热心用户E' },
+        reportedAt: new Date(Date.now() - 28800000).toISOString(),
+        status: 'rejected'
+      }
+    ];
+
+    let currentFilter = 'all';
+
+    function filterReports(filter) {
+      currentFilter = filter;
+      
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      renderReports();
+    }
+
+    function renderReports() {
+      const tbody = document.getElementById('reportsTable');
+      
+      let filteredReports = reports;
+      if (currentFilter !== 'all') {
+        filteredReports = reports.filter(r => r.status === currentFilter);
+      }
+      
+      tbody.innerHTML = filteredReports.map(report => `
+        <tr>
+          <td>#${report.id}</td>
+          <td>${getTypeLabel(report.type)}</td>
+          <td>${report.contentTitle}</td>
+          <td>
+            <strong>${report.reason}</strong><br>
+            <small style="color: var(--text-secondary);">${report.description}</small>
+          </td>
+          <td>${report.reporter.nickname}</td>
+          <td>${formatDate(report.reportedAt)}</td>
+          <td>${getStatusBadge(report.status)}</td>
+          <td>
+            <div class="action-buttons">
+              ${report.status === 'pending' ? `
+                <button class="btn btn-sm btn-primary" onclick="handleReport(${report.id}, 'resolve')">处理</button>
+                <button class="btn btn-sm btn-text" onclick="handleReport(${report.id}, 'reject')">驳回</button>
+              ` : `
+                <button class="btn btn-sm btn-text" onclick="viewReport(${report.id})">查看</button>
+              `}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function getTypeLabel(type) {
+      const labels = {
+        post: '帖子',
+        comment: '评论',
+        user: '用户'
+      };
+      return labels[type] || type;
+    }
+
+    function getStatusBadge(status) {
+      const badges = {
+        pending: '<span class="badge badge-warning">待处理</span>',
+        resolved: '<span class="badge badge-success">已处理</span>',
+        rejected: '<span class="badge badge-danger">已驳回</span>'
+      };
+      return badges[status] || status;
+    }
+
+    function viewReport(id) {
+      const report = reports.find(r => r.id === id);
+      if (report) {
+        showAlert(`举报详情\n\n类型：${getTypeLabel(report.type)}\n内容：${report.contentTitle}\n原因：${report.reason}\n说明：${report.description}`);
+      }
+    }
+
+    function handleReport(id, action) {
+      const report = reports.find(r => r.id === id);
+      if (!report) return;
+      
+      const actionText = action === 'resolve' ? '处理' : '驳回';
+      showConfirm(`确定要${actionText}这条举报吗？`, () => {
+        report.status = action === 'resolve' ? 'resolved' : 'rejected';
+        renderReports();
+        showToast(`举报已${actionText}`, 'success');
+      });
+    }
+
+    // Initialize
+    renderReports();
+  </script>
+</body>
+</html>

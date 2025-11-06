@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>板块管理 - Open436 论坛</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    body {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      padding: var(--space-xl);
+      background: var(--background-secondary);
+    }
+
+    .page-header {
+      margin-bottom: var(--space-xl);
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .page-description {
+      color: var(--text-secondary);
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-lg);
+    }
+
+    .sections-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-lg);
+    }
+
+    .section-card {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .section-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-base);
+    }
+
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .section-info {
+      flex: 1;
+    }
+
+    .section-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .section-slug {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .section-stats {
+      display: flex;
+      gap: var(--space-lg);
+      margin-bottom: var(--space-base);
+      padding: var(--space-base) 0;
+      border-top: 1px solid var(--divider);
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .section-actions {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    .btn-icon {
+      padding: var(--space-xs) var(--space-sm);
+      border: 1px solid var(--divider);
+      background: white;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-size: 14px;
+    }
+
+    .btn-icon:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    @media (max-width: 959px) {
+      .main-content {
+        margin-left: 0;
+      }
+
+      .sections-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Container -->
+  <div id="admin-sidebar-container"></div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">板块管理</h1>
+      <p class="page-description">管理论坛板块分类和设置</p>
+    </div>
+
+    <div class="toolbar">
+      <div></div>
+      <button class="btn btn-primary" onclick="addSection()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; margin-right: 8px;">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        添加板块
+      </button>
+    </div>
+
+    <div class="sections-grid" id="sectionsGrid">
+      <!-- Sections will be loaded here -->
+    </div>
+  </main>
+
+  <script src="../js/common.js"></script>
+  <script src="components/sidebar.js"></script>
+  <script>
+    // Check admin permission
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser || currentUser.role !== 'admin') {
+      window.location.href = '../pages/home.html';
+    }
+
+    // Initialize sidebar
+    initAdminSidebar('sections');
+
+    // Mock sections data
+    const sections = [
+      {
+        id: 'tech',
+        name: '技术交流',
+        slug: 'tech',
+        icon: '💻',
+        color: '#1976D2',
+        description: '分享技术经验，探讨编程问题',
+        posts: 156,
+        members: 1234,
+        order: 1,
+        enabled: true
+      },
+      {
+        id: 'design',
+        name: '设计分享',
+        slug: 'design',
+        icon: '🎨',
+        color: '#FF6F00',
+        description: '展示设计作品，交流设计理念',
+        posts: 89,
+        members: 567,
+        order: 2,
+        enabled: true
+      },
+      {
+        id: 'discuss',
+        name: '综合讨论',
+        slug: 'discuss',
+        icon: '💬',
+        color: '#4CAF50',
+        description: '畅所欲言，讨论各种话题',
+        posts: 234,
+        members: 890,
+        order: 3,
+        enabled: true
+      },
+      {
+        id: 'question',
+        name: '问答求助',
+        slug: 'question',
+        icon: '❓',
+        color: '#9C27B0',
+        description: '提出问题，寻求帮助和建议',
+        posts: 178,
+        members: 456,
+        order: 4,
+        enabled: true
+      },
+      {
+        id: 'share',
+        name: '资源分享',
+        slug: 'share',
+        icon: '📦',
+        color: '#FF9800',
+        description: '分享优质资源，共同学习进步',
+        posts: 123,
+        members: 678,
+        order: 5,
+        enabled: true
+      },
+      {
+        id: 'announce',
+        name: '公告通知',
+        slug: 'announce',
+        icon: '📢',
+        color: '#F44336',
+        description: '查看论坛公告和重要通知',
+        posts: 45,
+        members: 2000,
+        order: 6,
+        enabled: true
+      }
+    ];
+
+    function renderSections() {
+      const grid = document.getElementById('sectionsGrid');
+      
+      grid.innerHTML = sections.map(section => `
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-icon" style="background: ${section.color}20; color: ${section.color};">
+              ${section.icon}
+            </div>
+            <div class="section-info">
+              <div class="section-name">${section.name}</div>
+              <div class="section-slug">/${section.slug}</div>
+            </div>
+          </div>
+
+          <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: var(--space-base);">
+            ${section.description}
+          </p>
+
+          <div class="section-stats">
+            <div class="stat-item">
+              <div class="stat-value">${section.posts}</div>
+              <div class="stat-label">帖子数</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">${section.members}</div>
+              <div class="stat-label">成员数</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">${section.order}</div>
+              <div class="stat-label">排序</div>
+            </div>
+          </div>
+
+          <div class="section-actions">
+            <button class="btn-icon" onclick="editSection('${section.id}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; margin-right: 4px;">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              编辑
+            </button>
+            <button class="btn-icon" onclick="toggleSection('${section.id}')">
+              ${section.enabled ? '禁用' : '启用'}
+            </button>
+            <button class="btn-icon" style="color: var(--error);" onclick="deleteSection('${section.id}')">
+              删除
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function addSection() {
+      showAlert('添加板块功能开发中...');
+    }
+
+    function editSection(id) {
+      const section = sections.find(s => s.id === id);
+      if (section) {
+        showAlert(`编辑板块：${section.name}`);
+      }
+    }
+
+    function toggleSection(id) {
+      const section = sections.find(s => s.id === id);
+      if (section) {
+        section.enabled = !section.enabled;
+        renderSections();
+        showToast(`板块已${section.enabled ? '启用' : '禁用'}`, 'success');
+      }
+    }
+
+    function deleteSection(id) {
+      showConfirm('确定要删除这个板块吗？删除后无法恢复。', () => {
+        const index = sections.findIndex(s => s.id === id);
+        if (index > -1) {
+          sections.splice(index, 1);
+          renderSections();
+          showToast('板块已删除', 'success');
+        }
+      });
+    }
+
+    // Initialize
+    renderSections();
+  </script>
+</body>
+</html>

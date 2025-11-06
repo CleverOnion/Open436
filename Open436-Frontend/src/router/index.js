@@ -2,6 +2,7 @@
  * Vue Router 配置
  */
 import { createRouter, createWebHistory } from 'vue-router'
+import { useUserStore } from '@/stores/modules/user'
 
 // 路由配置
 const routes = [
@@ -13,21 +14,16 @@ const routes = [
       title: '首页',
       requiresAuth: false
     }
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/Login.vue'),
+    meta: {
+      title: '登录',
+      requiresAuth: false
+    }
   }
-  // TODO: 添加更多路由配置
-  // 示例：
-  // {
-  //   path: '/login',
-  //   name: 'Login',
-  //   component: () => import('@/views/Login.vue'),
-  //   meta: { title: '登录', requiresAuth: false }
-  // },
-  // {
-  //   path: '/profile',
-  //   name: 'Profile',
-  //   component: () => import('@/views/Profile.vue'),
-  //   meta: { title: '个人中心', requiresAuth: true }
-  // }
 ]
 
 // 创建路由实例
@@ -51,15 +47,26 @@ router.beforeEach((to, from, next) => {
     document.title = `${to.meta.title} - ${import.meta.env.VITE_APP_TITLE || 'Open436'}`
   }
 
-  // TODO: 添加权限验证逻辑
-  // 示例：
-  // if (to.meta.requiresAuth) {
-  //   const token = storage.get('token')
-  //   if (!token) {
-  //     next({ name: 'Login', query: { redirect: to.fullPath } })
-  //     return
-  //   }
-  // }
+  // 获取用户状态
+  const userStore = useUserStore()
+
+  // 权限验证逻辑
+  if (to.meta.requiresAuth) {
+    // 需要登录的页面
+    if (!userStore.isLoggedIn) {
+      // 未登录，重定向到登录页，并携带原始路径
+      next({
+        name: 'Login',
+        query: { redirect: to.fullPath }
+      })
+      return
+    }
+  } else if (to.name === 'Login' && userStore.isLoggedIn) {
+    // 已登录用户访问登录页，重定向到首页或原始目标页面
+    const redirect = to.query.redirect
+    next(redirect ? { path: redirect } : { name: 'Home' })
+    return
+  }
 
   next()
 })

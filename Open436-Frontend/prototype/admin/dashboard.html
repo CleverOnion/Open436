@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理后台 - Open436 论坛</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    body {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .main-container {
+      flex: 1;
+      margin-left: 260px;
+      background: var(--background-secondary);
+    }
+
+    .admin-header {
+      height: 64px;
+      background: var(--background);
+      border-bottom: 1px solid var(--divider);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-xl);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .admin-header-title {
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    .admin-user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .admin-content {
+      padding: var(--space-xl);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: var(--space-lg);
+      margin-bottom: var(--space-xl);
+    }
+
+    .stat-card {
+      background: var(--background);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .stat-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-base);
+    }
+
+    .stat-card-title {
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+
+    .stat-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-card-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .stat-card-icon.blue {
+      background: rgba(25, 118, 210, 0.1);
+      color: var(--primary);
+    }
+
+    .stat-card-icon.green {
+      background: rgba(76, 175, 80, 0.1);
+      color: var(--success);
+    }
+
+    .stat-card-icon.orange {
+      background: rgba(255, 111, 0, 0.1);
+      color: var(--secondary);
+    }
+
+    .stat-card-icon.purple {
+      background: rgba(156, 39, 176, 0.1);
+      color: #9C27B0;
+    }
+
+    .stat-card-value {
+      font-size: 32px;
+      font-weight: 300;
+      color: var(--text-primary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .stat-card-change {
+      font-size: 13px;
+      color: var(--success);
+    }
+
+    .stat-card-change.negative {
+      color: var(--error);
+    }
+
+    .recent-section {
+      background: var(--background);
+      border-radius: var(--radius-md);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .recent-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-base);
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .recent-title {
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .recent-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-base);
+    }
+
+    .recent-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md);
+      border-radius: var(--radius-sm);
+      transition: background var(--transition-fast);
+    }
+
+    .recent-item:hover {
+      background: var(--background-secondary);
+    }
+
+    .recent-item-info {
+      flex: 1;
+    }
+
+    .recent-item-title {
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .recent-item-meta {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 959px) {
+      .main-container {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Container -->
+  <div id="admin-sidebar-container"></div>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    <!-- Header -->
+    <header class="admin-header">
+      <h1 class="admin-header-title">仪表盘</h1>
+      <div class="admin-user">
+        <img src="" alt="Avatar" class="avatar avatar-sm" id="adminAvatar">
+        <span id="adminName">管理员</span>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="admin-content">
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div>
+              <div class="stat-card-title">用户总数</div>
+            </div>
+            <div class="stat-card-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="stat-card-value">1,248</div>
+          <div class="stat-card-change">↑ 12% 较上月</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div>
+              <div class="stat-card-title">帖子总数</div>
+            </div>
+            <div class="stat-card-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+            </div>
+          </div>
+          <div class="stat-card-value">3,456</div>
+          <div class="stat-card-change">↑ 8% 较上月</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div>
+              <div class="stat-card-title">今日活跃</div>
+            </div>
+            <div class="stat-card-icon orange">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="stat-card-value">342</div>
+          <div class="stat-card-change">↑ 5% 较昨日</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div>
+              <div class="stat-card-title">今日新增</div>
+            </div>
+            <div class="stat-card-icon purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </div>
+          </div>
+          <div class="stat-card-value">28</div>
+          <div class="stat-card-change">↑ 15% 较昨日</div>
+        </div>
+      </div>
+
+      <!-- Recent Posts -->
+      <div class="recent-section">
+        <div class="recent-header">
+          <h2 class="recent-title">最新帖子</h2>
+          <a href="posts.html" class="btn btn-text">查看全部</a>
+        </div>
+        <div class="recent-list" id="recentPosts">
+          <!-- Recent posts will be loaded here -->
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/common.js"></script>
+  <script src="components/sidebar.js"></script>
+  <script>
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser || currentUser.role !== 'admin') {
+      window.location.href = '../pages/home.html';
+    }
+
+    // Initialize sidebar
+    initAdminSidebar('dashboard');
+
+    document.getElementById('adminAvatar').src = currentUser.avatar;
+    document.getElementById('adminName').textContent = currentUser.nickname;
+
+    // Mock recent posts
+    const recentPosts = [
+      {
+        id: 1,
+        title: 'JavaScript 异步编程最佳实践',
+        author: '前端开发者',
+        time: new Date(Date.now() - 3600000).toISOString(),
+        status: 'normal'
+      },
+      {
+        id: 2,
+        title: 'CSS Grid 布局完全指南',
+        author: 'UI设计师',
+        time: new Date(Date.now() - 7200000).toISOString(),
+        status: 'normal'
+      },
+      {
+        id: 3,
+        title: 'Node.js 性能优化技巧',
+        author: '后端工程师',
+        time: new Date(Date.now() - 10800000).toISOString(),
+        status: 'normal'
+      },
+      {
+        id: 4,
+        title: 'React Hooks 深入理解',
+        author: 'React开发者',
+        time: new Date(Date.now() - 14400000).toISOString(),
+        status: 'pinned'
+      },
+      {
+        id: 5,
+        title: 'TypeScript 类型系统详解',
+        author: 'TS专家',
+        time: new Date(Date.now() - 18000000).toISOString(),
+        status: 'normal'
+      }
+    ];
+
+    function loadRecentPosts() {
+      const container = document.getElementById('recentPosts');
+      container.innerHTML = recentPosts.map(post => `
+        <div class="recent-item">
+          <div class="recent-item-info">
+            <div class="recent-item-title">
+              ${post.title}
+              ${post.status === 'pinned' ? '<span class="badge badge-warning" style="margin-left: 8px;">置顶</span>' : ''}
+            </div>
+            <div class="recent-item-meta">
+              ${post.author} · ${formatDate(post.time)}
+            </div>
+          </div>
+          <a href="../pages/post-detail.html?id=${post.id}" class="btn btn-sm btn-text">查看</a>
+        </div>
+      `).join('');
+    }
+
+    loadRecentPosts();
+  </script>
+</body>
+</html>

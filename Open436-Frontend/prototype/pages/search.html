@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>搜索结果 - Open436 论坛</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/navbar.css">
+  <link rel="stylesheet" href="../css/sidebar.css">
+  <style>
+    .main-content {
+      padding: var(--space-xl) 0;
+      min-height: calc(100vh - 64px);
+    }
+
+    .search-header {
+      margin-bottom: var(--space-xl);
+    }
+
+    .search-title {
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .search-query {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .search-stats {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .search-filters {
+      display: flex;
+      gap: var(--space-base);
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-base);
+      border-bottom: 2px solid var(--divider);
+      overflow-x: auto;
+    }
+
+    .filter-btn {
+      padding: var(--space-sm) var(--space-lg);
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .filter-btn:hover {
+      color: var(--primary);
+    }
+
+    .filter-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .search-results {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      background: white;
+    }
+
+    .result-item {
+      background: white;
+      padding: var(--space-lg);
+      border-bottom: 1px solid #e5e5e5;
+      transition: background-color var(--transition-fast);
+      cursor: pointer;
+    }
+
+    .result-item:first-child {
+      border-top: 1px solid #e5e5e5;
+    }
+
+    .result-item:hover {
+      background-color: #f8f9fa;
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      margin-bottom: var(--space-sm);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .result-section-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .result-section {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .result-author {
+      font-weight: 400;
+      color: var(--text-primary);
+    }
+
+    .result-time::before {
+      content: '•';
+      margin: 0 4px;
+    }
+
+    .result-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: var(--space-xs);
+      line-height: 1.3;
+    }
+
+    .result-title .highlight {
+      background: rgba(255, 235, 59, 0.4);
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+
+    .result-content {
+      color: #7c7c7c;
+      line-height: 1.5;
+      font-size: 14px;
+      margin-bottom: var(--space-sm);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .result-content .highlight {
+      background: rgba(255, 235, 59, 0.4);
+      padding: 0 2px;
+      border-radius: 2px;
+      font-weight: 500;
+    }
+
+    .result-footer {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .result-stat {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .result-stat svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: var(--space-3xl) var(--space-lg);
+      color: var(--text-secondary);
+    }
+
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: var(--space-lg);
+      opacity: 0.3;
+    }
+
+    .empty-state h3 {
+      font-size: 18px;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      margin-bottom: var(--space-lg);
+    }
+
+    .search-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      justify-content: center;
+    }
+
+    .suggestion-tag {
+      padding: var(--space-xs) var(--space-base);
+      background: var(--background-secondary);
+      border: 1px solid var(--divider);
+      border-radius: 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .suggestion-tag:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    @media (max-width: 599px) {
+      .search-filters {
+        gap: var(--space-sm);
+      }
+
+      .filter-btn {
+        padding: var(--space-xs) var(--space-base);
+        font-size: 13px;
+      }
+
+      .result-title {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="navbar-container">
+      <a href="home.html" class="navbar-brand">
+        <div class="navbar-logo">O</div>
+        <span>OPEN436</span>
+      </a>
+
+      <div class="navbar-menu">
+        <a href="home.html" class="navbar-link">首页</a>
+        <a href="favorites.html" class="navbar-link">我的收藏</a>
+      </div>
+
+      <div class="navbar-search">
+        <input 
+          type="text" 
+          class="search-input" 
+          id="searchInput"
+          placeholder="搜索帖子..."
+          onkeypress="handleSearch(event)"
+        >
+      </div>
+
+      <div class="navbar-actions">
+        <div class="navbar-user" data-dropdown>
+          <button class="navbar-user-btn" data-dropdown-trigger>
+            <img src="" alt="Avatar" class="avatar avatar-sm" id="navAvatar">
+            <span class="navbar-user-name" id="navUsername">用户</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div class="navbar-dropdown">
+            <a href="profile.html" class="navbar-dropdown-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              个人主页
+            </a>
+            <a href="profile-edit.html" class="navbar-dropdown-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              编辑资料
+            </a>
+            <a href="password-change.html" class="navbar-dropdown-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              修改密码
+            </a>
+            <div class="navbar-dropdown-divider" id="adminDivider" style="display: none;"></div>
+            <a href="../admin/dashboard.html" class="navbar-dropdown-item" id="adminLink" style="display: none;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              管理后台
+            </a>
+            <div class="navbar-dropdown-divider"></div>
+            <a href="#" class="navbar-dropdown-item" onclick="logout()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              退出登录
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="page-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-sticky">
+          <div class="sidebar-section">
+            <div class="sidebar-section-header">板块分类</div>
+            <ul class="sidebar-menu">
+              <li class="sidebar-menu-item">
+                <a href="home.html#all" class="sidebar-menu-link">
+                  <span class="sidebar-menu-icon">
+                    <img src="https://api.iconify.design/mdi:view-grid.svg?color=%231976D2&width=32" alt="全部">
+                  </span>
+                  <span class="sidebar-menu-text">全部</span>
+                </a>
+              </li>
+              <li class="sidebar-menu-item">
+                <a href="home.html#tech" class="sidebar-menu-link">
+                  <span class="sidebar-menu-icon">
+                    <img src="https://api.iconify.design/mdi:code-braces.svg?color=%231976D2&width=32" alt="技术交流">
+                  </span>
+                  <span class="sidebar-menu-text">技术交流</span>
+                </a>
+              </li>
+              <li class="sidebar-menu-item">
+                <a href="home.html#design" class="sidebar-menu-link">
+                  <span class="sidebar-menu-icon">
+                    <img src="https://api.iconify.design/mdi:palette.svg?color=%23FF6F00&width=32" alt="设计分享">
+                  </span>
+                  <span class="sidebar-menu-text">设计分享</span>
+                </a>
+              </li>
+              <li class="sidebar-menu-item">
+                <a href="home.html#discuss" class="sidebar-menu-link">
+                  <span class="sidebar-menu-icon">
+                    <img src="https://api.iconify.design/mdi:forum.svg?color=%234CAF50&width=32" alt="综合讨论">
+                  </span>
+                  <span class="sidebar-menu-text">综合讨论</span>
+                </a>
+              </li>
+              <li class="sidebar-menu-item">
+                <a href="home.html#question" class="sidebar-menu-link">
+                  <span class="sidebar-menu-icon">
+                    <img src="https://api.iconify.design/mdi:help-circle.svg?color=%239C27B0&width=32" alt="问答求助">
+                  </span>
+                  <span class="sidebar-menu-text">问答求助</span>
+                </a>
+              </li>
+              <li class="sidebar-menu-item">
+                <a href="home.html#share" class="sidebar-menu-link">
+                  <span class="sidebar-menu-icon">
+                    <img src="https://api.iconify.design/mdi:share-variant.svg?color=%23FF9800&width=32" alt="资源分享">
+                  </span>
+                  <span class="sidebar-menu-text">资源分享</span>
+                </a>
+              </li>
+              <li class="sidebar-menu-item">
+                <a href="home.html#announce" class="sidebar-menu-link">
+                  <span class="sidebar-menu-icon">
+                    <img src="https://api.iconify.design/mdi:bullhorn.svg?color=%23F44336&width=32" alt="公告通知">
+                  </span>
+                  <span class="sidebar-menu-text">公告通知</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content Area -->
+      <div class="main-content-area">
+      <div class="search-header">
+        <h1 class="search-title">
+          搜索 "<span class="search-query" id="searchQuery"></span>"
+        </h1>
+        <div class="search-stats" id="searchStats">找到 0 个结果</div>
+      </div>
+
+      <div class="search-filters">
+        <button class="filter-btn active" data-filter="all" onclick="filterResults('all')">全部</button>
+        <button class="filter-btn" data-filter="tech" onclick="filterResults('tech')">技术交流</button>
+        <button class="filter-btn" data-filter="design" onclick="filterResults('design')">设计分享</button>
+        <button class="filter-btn" data-filter="discuss" onclick="filterResults('discuss')">综合讨论</button>
+        <button class="filter-btn" data-filter="question" onclick="filterResults('question')">问答求助</button>
+        <button class="filter-btn" data-filter="share" onclick="filterResults('share')">资源分享</button>
+        <button class="filter-btn" data-filter="announce" onclick="filterResults('announce')">公告通知</button>
+      </div>
+
+      <div class="search-results" id="searchResults">
+        <!-- Results will be loaded here -->
+      </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Sidebar Toggle (Mobile) -->
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <script src="../js/common.js"></script>
+  <script>
+    // Check authentication
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser) {
+      window.location.href = 'login.html';
+    }
+
+    // Update navbar with user info
+    document.getElementById('navAvatar').src = currentUser.avatar;
+    document.getElementById('navUsername').textContent = currentUser.nickname;
+
+    // Show admin link if user is admin
+    if (currentUser.role === 'admin') {
+      document.getElementById('adminLink').style.display = 'flex';
+      document.getElementById('adminDivider').style.display = 'block';
+    }
+
+    // Get search query from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('q') || '';
+    document.getElementById('searchQuery').textContent = searchQuery;
+    document.getElementById('searchInput').value = searchQuery;
+
+    // Section definitions
+    const sections = {
+      tech: { name: '技术交流', icon: 'code' },
+      design: { name: '设计分享', icon: 'pen-tool' },
+      discuss: { name: '综合讨论', icon: 'message' },
+      question: { name: '问答求助', icon: 'help' },
+      share: { name: '资源分享', icon: 'share' },
+      announce: { name: '公告通知', icon: 'bell' }
+    };
+
+    // Mock search results
+    const allPosts = [
+      {
+        id: 1,
+        title: 'JavaScript 异步编程最佳实践',
+        content: '在现代 JavaScript 开发中，异步编程是不可避免的。本文将介绍 Promise、async/await 等异步编程模式的最佳实践，帮助你写出更优雅、更易维护的异步代码。',
+        section: 'tech',
+        author: {
+          id: 2,
+          nickname: '前端开发者',
+          avatar: 'https://ui-avatars.com/api/?name=Dev&background=4CAF50&color=fff'
+        },
+        createdAt: new Date(Date.now() - 7200000).toISOString(),
+        views: 856,
+        replies: 23,
+        likes: 45
+      },
+      {
+        id: 2,
+        title: 'CSS Grid 布局完全指南',
+        content: 'CSS Grid 是一个强大的二维布局系统，它改变了我们构建网页布局的方式。本指南将详细介绍 Grid 的核心概念、属性和实际应用场景。',
+        section: 'design',
+        author: {
+          id: 3,
+          nickname: 'UI设计师',
+          avatar: 'https://ui-avatars.com/api/?name=UI&background=FF6F00&color=fff'
+        },
+        createdAt: new Date(Date.now() - 14400000).toISOString(),
+        views: 645,
+        replies: 18,
+        likes: 32
+      },
+      {
+        id: 3,
+        title: 'React Hooks 深入理解',
+        content: 'React Hooks 彻底改变了我们编写 React 组件的方式。本文将深入探讨 useState、useEffect、useContext 等常用 Hooks 的原理和使用技巧。',
+        section: 'tech',
+        author: {
+          id: 5,
+          nickname: 'React开发者',
+          avatar: 'https://ui-avatars.com/api/?name=React&background=61DAFB&color=000'
+        },
+        createdAt: new Date(Date.now() - 28800000).toISOString(),
+        views: 789,
+        replies: 34,
+        likes: 67
+      },
+      {
+        id: 4,
+        title: '如何解决 CSS 浮动问题？',
+        content: '在使用 CSS 浮动布局时遇到了一些问题，父元素高度塌陷，求助大家有什么好的解决方案吗？',
+        section: 'question',
+        author: {
+          id: 6,
+          nickname: '新手开发者',
+          avatar: 'https://ui-avatars.com/api/?name=New&background=FF5722&color=fff'
+        },
+        createdAt: new Date(Date.now() - 36000000).toISOString(),
+        views: 234,
+        replies: 8,
+        likes: 12
+      },
+      {
+        id: 5,
+        title: '分享一些优秀的设计资源网站',
+        content: '整理了一些我常用的设计资源网站，包括图标、字体、配色、灵感等，希望对大家有帮助。',
+        section: 'share',
+        author: {
+          id: 7,
+          nickname: '设计爱好者',
+          avatar: 'https://ui-avatars.com/api/?name=Design&background=E91E63&color=fff'
+        },
+        createdAt: new Date(Date.now() - 43200000).toISOString(),
+        views: 567,
+        replies: 15,
+        likes: 43
+      }
+    ];
+
+    let currentFilter = 'all';
+    let searchResults = [];
+
+    // Get section icon
+    function getSectionIcon(section) {
+      const icons = {
+        tech: 'mdi:code-braces',
+        design: 'mdi:palette',
+        discuss: 'mdi:forum',
+        question: 'mdi:help-circle',
+        share: 'mdi:share-variant',
+        announce: 'mdi:bullhorn'
+      };
+      const colors = {
+        tech: '1976D2',
+        design: 'FF6F00',
+        discuss: '4CAF50',
+        question: '9C27B0',
+        share: 'FF9800',
+        announce: 'F44336'
+      };
+      const icon = icons[section] || icons.tech;
+      const color = colors[section] || '1976D2';
+      return `https://api.iconify.design/${icon}.svg?color=%23${color}&width=32`;
+    }
+
+    // Highlight search query in text
+    function highlightText(text, query) {
+      if (!query) return text;
+      const regex = new RegExp(`(${query})`, 'gi');
+      return text.replace(regex, '<span class="highlight">$1</span>');
+    }
+
+    // Perform search
+    function performSearch() {
+      if (!searchQuery) {
+        searchResults = [];
+        renderResults();
+        return;
+      }
+
+      const query = searchQuery.toLowerCase();
+      searchResults = allPosts.filter(post => {
+        return post.title.toLowerCase().includes(query) ||
+               post.content.toLowerCase().includes(query) ||
+               post.author.nickname.toLowerCase().includes(query);
+      });
+
+      renderResults();
+    }
+
+    // Filter results
+    function filterResults(filter) {
+      currentFilter = filter;
+
+      // Update active state
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+
+      renderResults();
+    }
+
+    // Render results
+    function renderResults() {
+      const resultsContainer = document.getElementById('searchResults');
+      
+      // Apply filter
+      let filteredResults = currentFilter === 'all' 
+        ? searchResults 
+        : searchResults.filter(post => post.section === currentFilter);
+
+      // Update stats
+      document.getElementById('searchStats').textContent = 
+        `找到 ${filteredResults.length} 个结果`;
+
+      if (filteredResults.length === 0) {
+        resultsContainer.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <h3>没有找到相关结果</h3>
+            <p>试试其他关键词或浏览热门话题</p>
+            <div class="search-suggestions">
+              <span class="suggestion-tag" onclick="searchSuggestion('JavaScript')">JavaScript</span>
+              <span class="suggestion-tag" onclick="searchSuggestion('CSS')">CSS</span>
+              <span class="suggestion-tag" onclick="searchSuggestion('React')">React</span>
+              <span class="suggestion-tag" onclick="searchSuggestion('设计')">设计</span>
+              <span class="suggestion-tag" onclick="searchSuggestion('前端')">前端</span>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      resultsContainer.innerHTML = filteredResults.map(post => `
+        <div class="result-item" onclick="viewPost(${post.id})">
+          <div class="result-header">
+            <img src="${getSectionIcon(post.section)}" alt="${sections[post.section].name}" class="result-section-icon">
+            <span class="result-section">r/${sections[post.section].name}</span>
+            <span class="result-author">u/${post.author.nickname}</span>
+            <span class="result-time">${formatDate(post.createdAt)}</span>
+          </div>
+          
+          <h2 class="result-title">${highlightText(post.title, searchQuery)}</h2>
+          <div class="result-content">${highlightText(post.content, searchQuery)}</div>
+          
+          <div class="result-footer">
+            <div class="result-stat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              ${formatNumber(post.views)}
+            </div>
+            <div class="result-stat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              ${post.replies} 回复
+            </div>
+            <div class="result-stat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              ${post.likes}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function viewPost(postId) {
+      window.location.href = `post-detail.html?id=${postId}`;
+    }
+
+    function searchSuggestion(keyword) {
+      window.location.href = `search.html?q=${encodeURIComponent(keyword)}`;
+    }
+
+    function handleSearch(event) {
+      if (event.key === 'Enter') {
+        const query = event.target.value;
+        if (query.trim()) {
+          window.location.href = `search.html?q=${encodeURIComponent(query)}`;
+        }
+      }
+    }
+
+    // Toggle mobile sidebar
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+    }
+
+    function logout() {
+      showConfirm('确定要退出登录吗？', () => {
+        localStorage.removeItem('currentUser');
+        window.location.href = 'login.html';
+      });
+    }
+
+    // Initialize
+    performSearch();
+  </script>
+</body>
+</html>

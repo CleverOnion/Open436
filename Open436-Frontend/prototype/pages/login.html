@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 - Open436 论坛</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    body {
+      min-height: 100vh;
+      background: var(--background-secondary);
+    }
+
+    .login-wrapper {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .login-left {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-xl);
+      background: var(--background);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .grid-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        linear-gradient(rgba(25, 118, 210, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(25, 118, 210, 0.06) 1px, transparent 1px);
+      background-size: 20px 20px;
+      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    }
+
+    .mouse-glow {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(25, 118, 210, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease-out;
+      z-index: 2;
+    }
+
+    .login-left::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(25, 118, 210, 0.08) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .login-left::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(25, 118, 210, 0.05) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .welcome-content {
+      max-width: 480px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-right {
+      flex: 1;
+      background: var(--background-secondary);
+      padding: var(--space-xl);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .site-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-2xl);
+    }
+
+    .site-logo {
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .site-name {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .login-header {
+      margin-bottom: var(--space-2xl);
+    }
+
+    .login-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-xs);
+    }
+
+    .login-subtitle {
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    .login-form {
+      margin-bottom: var(--space-xl);
+    }
+
+    .form-group {
+      margin-bottom: var(--space-lg);
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: var(--space-xs);
+      font-weight: 500;
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      transition: all var(--transition-fast);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+    }
+
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-lg);
+      font-size: 14px;
+    }
+
+    .remember-me {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .forgot-link {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .forgot-link:hover {
+      text-decoration: underline;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 12px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .login-button:hover {
+      background: #1565C0;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: var(--space-xl) 0;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--divider);
+    }
+
+    .divider::before {
+      margin-right: var(--space-base);
+    }
+
+    .divider::after {
+      margin-left: var(--space-base);
+    }
+
+    .register-link {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .register-link a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .register-link a:hover {
+      text-decoration: underline;
+    }
+
+    .welcome-content {
+      max-width: 480px;
+    }
+
+    .welcome-title {
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-base);
+      line-height: 1.2;
+    }
+
+    .welcome-text {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: var(--space-xl);
+    }
+
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-base);
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    .feature-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--primary);
+    }
+
+    @media (max-width: 959px) {
+      .login-wrapper {
+        flex-direction: column;
+      }
+
+      .login-left {
+        display: none;
+      }
+
+      .login-right {
+        padding: var(--space-lg);
+      }
+
+      .welcome-title {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-wrapper">
+    <!-- Left Side - Welcome Content -->
+    <div class="login-left" id="loginLeft">
+      <div class="grid-background" id="gridBackground"></div>
+      <div class="mouse-glow" id="mouseGlow"></div>
+      <div class="welcome-content">
+        <h1 class="welcome-title">加入 Open436<br>开启你的技术之旅</h1>
+        <p class="welcome-text">一个专注于技术交流与知识分享的社区平台，在这里你可以与志同道合的开发者一起学习、成长。</p>
+        
+        <div class="features">
+          <div class="feature-item">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+              <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+            </svg>
+            <span>多样化的技术板块</span>
+          </div>
+          <div class="feature-item">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>活跃的开发者社区</span>
+          </div>
+          <div class="feature-item">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+            <span>实时的技术动态</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side - Login Form -->
+    <div class="login-right">
+      <div class="login-container">
+        <div class="site-brand">
+          <div class="site-logo">O</div>
+          <span class="site-name">Open436</span>
+        </div>
+
+        <div class="login-header">
+          <h1 class="login-title">登录</h1>
+          <p class="login-subtitle">使用你的账号登录到 Open436</p>
+        </div>
+
+        <form class="login-form" id="loginForm">
+          <div class="form-group">
+            <label class="form-label" for="username">用户名</label>
+            <input 
+              type="text" 
+              id="username" 
+              class="form-input" 
+              placeholder="输入用户名"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">密码</label>
+            <input 
+              type="password" 
+              id="password" 
+              class="form-input" 
+              placeholder="输入密码"
+              required
+            >
+          </div>
+
+          <div class="form-options">
+            <label class="remember-me">
+              <input type="checkbox" id="remember">
+              <span>记住我</span>
+            </label>
+            <a href="#" class="forgot-link">忘记密码？</a>
+          </div>
+
+          <button type="submit" class="login-button">登录</button>
+        </form>
+
+        <div class="divider">或</div>
+
+        <div class="register-link">
+          还没有账号？<a href="register.html">立即注册</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Grid background mouse interaction
+    const loginLeft = document.getElementById('loginLeft');
+    const gridBackground = document.getElementById('gridBackground');
+    const mouseGlow = document.getElementById('mouseGlow');
+
+    if (loginLeft && gridBackground && mouseGlow) {
+      loginLeft.addEventListener('mouseenter', () => {
+        mouseGlow.style.opacity = '1';
+      });
+
+      loginLeft.addEventListener('mousemove', (e) => {
+        const rect = loginLeft.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // Calculate movement based on mouse position (max 30px movement for stronger effect)
+        const moveX = (x / rect.width - 0.5) * 30;
+        const moveY = (y / rect.height - 0.5) * 30;
+        
+        // Move grid
+        gridBackground.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.02)`;
+        
+        // Move glow to follow mouse
+        mouseGlow.style.left = `${x - 150}px`;
+        mouseGlow.style.top = `${y - 150}px`;
+      });
+
+      loginLeft.addEventListener('mouseleave', () => {
+        gridBackground.style.transform = 'translate(0, 0) scale(1)';
+        mouseGlow.style.opacity = '0';
+      });
+    }
+
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const type = passwordInput.type === 'password' ? 'text' : 'password';
+      passwordInput.type = type;
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const remember = document.getElementById('remember').checked;
+
+      // Simulate login
+      if (username && password) {
+        // Store user info in localStorage
+        localStorage.setItem('currentUser', JSON.stringify({
+          id: 1,
+          username: username,
+          nickname: username === 'admin' ? '管理员' : '用户' + Math.floor(Math.random() * 1000),
+          avatar: `https://ui-avatars.com/api/?name=${username}&background=1976D2&color=fff`,
+          role: username === 'admin' ? 'admin' : 'user'
+        }));
+
+        // Redirect to home page
+        window.location.href = 'home.html';
+      }
+    });
+
+    // Check if already logged in
+    if (localStorage.getItem('currentUser')) {
+      window.location.href = 'home.html';
+    }
+  </script>
+</body>
+</html>
