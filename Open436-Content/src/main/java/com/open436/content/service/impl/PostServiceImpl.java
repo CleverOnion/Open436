@@ -1,10 +1,13 @@
 package com.open436.content.service.impl;
 
 import com.open436.content.common.PageResult;
+import com.open436.content.common.exception.ResourceNotFoundException;
+import com.open436.content.common.exception.UnauthorizedException;
 import com.open436.content.domain.dto.CreatePostDTO;
 import com.open436.content.domain.dto.PostQueryDTO;
 import com.open436.content.domain.dto.UpdatePostDTO;
 import com.open436.content.domain.entity.Post;
+import com.open436.content.domain.entity.PostEditHistory;
 import com.open436.content.domain.entity.PostViewRecord;
 import com.open436.content.repository.PostEditHistoryRepository;
 import com.open436.content.repository.PostRepository;
@@ -240,9 +243,42 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void updatePost(Long id, UpdatePostDTO updatePostDTO, Long editorId, Boolean isAdmin) {
-        // TODO: 实现编辑帖子功能
-        log.info("TODO: 编辑帖子 - 帖子ID:{}, 编辑者ID:{}, 是否管理员:{}", id, editorId, isAdmin);
-        throw new UnsupportedOperationException("功能待实现：编辑帖子");
+        log.info("编辑帖子 - 帖子ID:{}, 编辑者ID:{}, 是否管理员:{}", id, editorId, isAdmin);
+        
+        // 1. 查询帖子
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("帖子", id));
+        
+        // 2. 权限检查：只有作者或管理员可以编辑
+        if (!Boolean.TRUE.equals(isAdmin) && (editorId == null || !post.getAuthorId().equals(editorId))) {
+            throw new UnauthorizedException("无权编辑该帖子");
+        }
+        
+        // 3. 保存编辑历史
+        Integer nextVersion = Optional.ofNullable(postEditHistoryRepository.findMaxVersionByPostId(id))
+                .map(v -> v + 1).orElse(1);
+        
+        PostEditHistory history = new PostEditHistory();
+        history.setPostId(id);
+        history.setVersion(nextVersion);
+        history.setOldTitle(post.getTitle());
+        history.setOldContent(post.getContent());
+        history.setOldBoardId(post.getBoardId());
+        history.setEditedBy(editorId);
+        history.setEditReason(updatePostDTO.getEditReason());
+        postEditHistoryRepository.save(history);
+        
+        // 4. 更新帖子
+        if (updatePostDTO.getTitle() != null) post.setTitle(updatePostDTO.getTitle());
+        if (updatePostDTO.getContent() != null) post.setContent(updatePostDTO.getContent());
+        if (updatePostDTO.getBoardId() != null) post.setBoardId(updatePostDTO.getBoardId());
+        
+        post.setLastEditedAt(LocalDateTime.now());
+        post.setLastEditedBy(editorId);
+        post.setEditCount(post.getEditCount() + 1);
+        postRepository.save(post);
+        
+        log.info("帖子编辑成功 - 帖子ID:{}, 版本:{}", id, nextVersion);
     }
     
     @Override
