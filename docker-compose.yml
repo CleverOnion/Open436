@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 数据库
+  postgres:
+    image: postgres:14-alpine
+    container_name: section-service-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-open436}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-open436_password}
+      POSTGRES_DB: ${POSTGRES_DB:-open436}
+    ports:
+      - "55432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-open436}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 板块管理服务
+  section-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: section-service
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-open436}:${POSTGRES_PASSWORD:-open436_password}@postgres:5432/${POSTGRES_DB:-open436}
+      API_PREFIX: /api/v1
+      LOG_LEVEL: INFO
+    ports:
+      - "8005:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+

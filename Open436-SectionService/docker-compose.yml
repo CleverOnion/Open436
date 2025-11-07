@@ -1,0 +1,39 @@
+# M5 板块管理服务 Docker Compose 配置
+
+version: '3.8'
+
+services:
+  section-service:
+    build: .
+    container_name: open436-section-service
+    ports:
+      - "8005:8005"
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - DATABASE_URL=postgresql://open436:open436@postgres:5432/open436
+      - CONSUL_URL=http://consul:8500
+      - CONSUL_SERVICE_NAME=section-service
+      - CONSUL_SERVICE_ID=section-service-1
+      - FILE_SERVICE_NAME=file-service
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+      - consul
+    networks:
+      - open436-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8005/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  open436-network:
+    external: true
+
+volumes:
+  postgres-data:
+

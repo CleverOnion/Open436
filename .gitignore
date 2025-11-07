@@ -1,56 +1,3 @@
-# ============================================
-# Open436 Project .gitignore
-# ============================================
-
-# Compiled outputs
-**/target/
-*.class
-*.jar
-*.war
-*.exe
-*.pdb
-*.dll
-*.so
-*.dylib
-
-# Build directories
-build/
-dist/
-out/
-
-# IDE
-.idea/
-.vscode/
-*.iml
-*.iws
-*.ipr
-.project
-.classpath
-.settings/
-*.swp
-*.swo
-*~
-
-# Environment files
-.env
-.env.local
-.env.*.local
-
-# Logs
-*.log
-logs/
-
-# OS files
-.DS_Store
-Thumbs.db
-Desktop.ini
-
-# Package managers
-node_modules/
-.npm/
-.yarn/
-.pnpm-store/
-
 # Python
 __pycache__/
 *.py[cod]
@@ -60,33 +7,56 @@ __pycache__/
 env/
 venv/
 ENV/
-.venv
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Rust
-Cargo.lock
-.sqlx/
+# Virtual Environment
+.venv/
+venv/
+ENV/
 
-# Maven
-.mvn/wrapper/maven-wrapper.jar
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment Variables
+.env
+.env.local
 
 # Database
 *.db
-*.sqlite
 *.sqlite3
+postgres_data/
 
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.bak
-*.swp
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
 
-# Test outputs
-coverage/
-*.test
-test-results/
+# Logs
+*.log
+logs/
 
-# Local storage
-storage/
-uploads/
+# OS
+.DS_Store
+Thumbs.db
 
+# Docker
+docker-compose.override.yml
