@@ -2,6 +2,7 @@
  * Vue Router 配置
  */
 import { createRouter, createWebHistory } from 'vue-router'
+import storage from '@/utils/storage'
 
 // 路由配置
 const routes = [
@@ -13,7 +14,38 @@ const routes = [
       title: '首页',
       requiresAuth: false
     }
+  },
+  
+  // ========== M5 板块管理模块路由 ==========
+  {
+    path: '/sections',
+    name: 'SectionList',
+    component: () => import('@/views/sections/SectionList.vue'),
+    meta: {
+      title: '板块列表',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/sections/:idOrSlug',
+    name: 'SectionDetail',
+    component: () => import('@/views/sections/SectionDetail.vue'),
+    meta: {
+      title: '板块详情',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/admin/sections',
+    name: 'SectionManage',
+    component: () => import('@/views/sections/SectionManage.vue'),
+    meta: {
+      title: '板块管理',
+      requiresAuth: true,
+      requiresAdmin: true
+    }
   }
+  
   // TODO: 添加更多路由配置
   // 示例：
   // {
@@ -60,6 +92,23 @@ router.beforeEach((to, from, next) => {
   //     return
   //   }
   // }
+
+  if (to.meta && to.meta.requiresAuth) {
+    const token = storage.get('token')
+    if (!token) {
+      next({ name: 'Home' })
+      return
+    }
+  }
+
+  if (to.meta && to.meta.requiresAdmin) {
+    const userInfo = storage.get('user_info') || {}
+    const role = userInfo && userInfo.role
+    if (role !== 'admin') {
+      next({ name: 'Home' })
+      return
+    }
+  }
 
   next()
 })
