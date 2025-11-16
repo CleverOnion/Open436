@@ -40,5 +40,21 @@ export default defineConfig({
         }
       }
     }
+  },
+  
+  // 测试配置
+  test: {
+    globals: true,
+    environment: 'happy-dom',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'dist/',
+        '**/*.spec.js',
+        '**/*.test.js'
+      ]
+    }
   }
 })
