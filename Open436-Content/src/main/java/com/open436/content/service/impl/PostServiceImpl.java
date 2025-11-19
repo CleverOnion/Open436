@@ -284,9 +284,36 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void deletePost(Long id, Long operatorId, Boolean isAdmin, String reason) {
-        // TODO: 实现删除帖子功能
-        log.info("TODO: 删除帖子 - 帖子ID:{}, 操作者ID:{}, 是否管理员:{}, 原因:{}", id, operatorId, isAdmin, reason);
-        throw new UnsupportedOperationException("功能待实现：删除帖子");
+        log.info("删除帖子 - 帖子ID:{}, 操作者ID:{}, 是否管理员:{}, 原因:{}", id, operatorId, isAdmin, reason);
+        
+        // 1. 查询帖子
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("帖子", id));
+        
+        // 2. 权限检查：只有作者或管理员可以删除
+        if (!Boolean.TRUE.equals(isAdmin) && (operatorId == null || !post.getAuthorId().equals(operatorId))) {
+            throw new UnauthorizedException("无权删除该帖子");
+        }
+        
+        // 3. 管理员删除时如果没有提供原因，使用默认原因
+        String deleteReason = (Boolean.TRUE.equals(isAdmin) && (reason == null || reason.trim().isEmpty())) 
+                ? "管理员删除" : reason;
+        
+        // 4. 执行软删除
+        post.setIsDeleted(true);
+        post.setDeletedBy(operatorId);
+        post.setDeletedAt(LocalDateTime.now());
+        post.setDeleteReason(deleteReason);
+        // 删除时自动取消置顶
+        if (post.getPinType() > 0) {
+            post.setPinType(0);
+            post.setPinnedAt(null);
+            post.setPinnedBy(null);
+        }
+        
+        postRepository.save(post);
+        
+        log.info("帖子删除成功 - 帖子ID:{}", id);
     }
     
     @Override
