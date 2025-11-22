@@ -3,6 +3,7 @@ package com.open436.content.service.impl;
 import com.open436.content.common.exception.BusinessException;
 import com.open436.content.common.exception.ResourceNotFoundException;
 import com.open436.content.domain.entity.Post;
+import com.open436.content.domain.entity.PostEditHistory;
 import com.open436.content.repository.PostEditHistoryRepository;
 import com.open436.content.repository.PostRepository;
 import com.open436.content.service.PostManageService;
@@ -141,9 +142,33 @@ public class PostManageServiceImpl implements PostManageService {
     
     @Override
     public List<PostEditHistoryVO> getEditHistory(Long postId) {
-        // TODO: 实现查询编辑历史功能
-        log.info("TODO: 查询编辑历史 - 帖子ID:{}", postId);
-        throw new UnsupportedOperationException("功能待实现：查询编辑历史");
+        log.info("查询编辑历史 - 帖子ID:{}", postId);
+        
+        // 1. 验证帖子是否存在
+        if (!postRepository.existsById(postId)) {
+            throw new ResourceNotFoundException("帖子", postId);
+        }
+        
+        // 2. 查询编辑历史（按时间倒序）
+        List<PostEditHistory> histories = postEditHistoryRepository.findByPostIdOrderByEditedAtDesc(postId);
+        
+        // 3. 转换为VO
+        List<PostEditHistoryVO> result = histories.stream()
+                .map(history -> PostEditHistoryVO.builder()
+                        .id(history.getId())
+                        .postId(history.getPostId())
+                        .version(history.getVersion())
+                        .oldTitle(history.getOldTitle())
+                        .oldContent(history.getOldContent())
+                        .oldBoardId(history.getOldBoardId())
+                        .editedBy(history.getEditedBy())
+                        .editedAt(history.getEditedAt())
+                        .editReason(history.getEditReason())
+                        .build())
+                .toList();
+        
+        log.info("查询编辑历史成功 - 帖子ID:{}, 历史记录数:{}", postId, result.size());
+        return result;
     }
 }
 

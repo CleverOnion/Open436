@@ -66,12 +66,8 @@ public class PostServiceImpl implements PostService {
         
         log.info("帖子创建成功 - 帖子ID:{}", savedPost.getId());
         
-        // TODO: 调用用户服务API更新用户发帖数
-        // 需要调用 M2 用户管理服务的内部API: POST /internal/users/{authorId}/statistics/increment
-        // 请求体: {"field": "posts_count", "value": 1}
-
-        //TODO: 调用文件服务API上传帖子图片
-        // 需要调用 M7 文件服务API: POST /files/upload
+        // TODO: 集成用户服务，更新用户发帖数统计
+        // TODO: 集成文件服务，处理帖子图片上传
         
         return savedPost.getId();
     }
@@ -221,10 +217,10 @@ public class PostServiceImpl implements PostService {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .authorId(post.getAuthorId())
-                .authorName(null) // TODO: 调用M2用户服务获取用户信息
-                .authorAvatar(null) // TODO: 调用M2用户服务获取用户头像
+                .authorName(null) // TODO: 集成用户服务获取用户信息
+                .authorAvatar(null)
                 .boardId(post.getBoardId())
-                .boardName(null) // TODO: 调用M5板块服务获取板块名称
+                .boardName(null) // TODO: 集成板块服务获取板块名称
                 .pinType(post.getPinType())
                 .isDeleted(post.getIsDeleted())
                 .deleteReason(post.getDeleteReason())
@@ -348,10 +344,10 @@ public class PostServiceImpl implements PostService {
                 .title(post.getTitle())
                 .contentPreview(extractContentPreview(post.getContent()))
                 .authorId(post.getAuthorId())
-                .authorName(null) // TODO: 调用M2用户服务获取用户信息
-                .authorAvatar(null) // TODO: 调用M2用户服务获取用户头像
+                .authorName(null) // TODO: 集成用户服务获取用户信息
+                .authorAvatar(null)
                 .boardId(post.getBoardId())
-                .boardName(null) // TODO: 调用M5板块服务获取板块名称
+                .boardName(null) // TODO: 集成板块服务获取板块名称
                 .pinType(post.getPinType())
                 .viewCount(post.getViewCount())
                 .replyCount(post.getReplyCount())

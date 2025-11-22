@@ -1,6 +1,5 @@
 package com.open436.content.config;
 
-// import cn.dev33.satoken.interceptor.SaInterceptor; // 暂时未使用，启用拦截器时需要取消注释
 import cn.dev33.satoken.stp.StpInterface;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -25,29 +24,11 @@ public class SaTokenConfig implements WebMvcConfigurer {
     
     /**
      * 注册 Sa-Token 拦截器
-     * 配置需要认证的路径和排除的路径
-     * 
-     * 注意：暂时禁用拦截器，不强制要求登录验证
-     * 后续需要启用登录验证时，可以取消注释下面的代码
+     * 注意：当前暂时禁用拦截器，不强制要求登录验证
      */
     @Override
     public void addInterceptors(@NonNull InterceptorRegistry registry) {
         // 暂时禁用拦截器，不强制要求登录验证
-        // 后续需要启用时，取消下面的注释
-        // 注意：即使启用拦截器，也要排除Swagger相关路径
-        /*
-        registry.addInterceptor(new SaInterceptor())
-            .addPathPatterns("/**")
-            .excludePathPatterns(
-                "/swagger-ui/**",           // Swagger UI
-                "/swagger-ui.html",         // Swagger UI (简化路径)
-                "/swagger-ui/index.html",   // Swagger UI (默认路径)
-                "/v3/api-docs/**",          // OpenAPI文档
-                "/actuator/**",             // Actuator健康检查
-                "/error",                   // 错误页面
-                "/favicon.ico"              // 网站图标
-            );
-        */
     }
     
     /**
