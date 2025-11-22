@@ -52,7 +52,7 @@ spring:
   data:
     redis:
       host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
+      port: ${REDIS_PORT:56379}  # 使用 56379 避免端口冲突
       password: ${REDIS_PASSWORD:}
       timeout: 3000ms
       lettuce:

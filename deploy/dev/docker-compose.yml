@@ -41,7 +41,7 @@ services:
     image: redis:7-alpine
     container_name: open436-redis-dev
     ports:
-      - "6379:6379"
+      - "56379:6379"  # 使用 56379 避免 Windows 端口权限问题
     networks:
       - open436-dev-network
 
