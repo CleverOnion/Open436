@@ -91,17 +91,52 @@ public class PostManageServiceImpl implements PostManageService {
     @Override
     @Transactional
     public void restorePost(Long postId, Long operatorId) {
-        // TODO: 实现恢复帖子功能
-        log.info("TODO: 恢复帖子 - 帖子ID:{}, 操作者ID:{}", postId, operatorId);
-        throw new UnsupportedOperationException("功能待实现：恢复帖子");
+        log.info("恢复帖子 - 帖子ID:{}, 操作者ID:{}", postId, operatorId);
+        
+        // 1. 查询帖子（包括已删除的）
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("帖子", postId));
+        
+        // 2. 检查帖子是否已删除
+        if (!post.getIsDeleted()) {
+            log.warn("帖子未被删除，无需恢复");
+            throw new BusinessException(400, "帖子未被删除，无需恢复");
+        }
+        
+        // 3. 恢复帖子
+        post.setIsDeleted(false);
+        post.setDeleteReason(null);
+        post.setDeletedBy(null);
+        post.setDeletedAt(null);
+        
+        // 4. 保存更新
+        postRepository.save(post);
+        
+        log.info("恢复帖子成功 - 帖子ID:{}", postId);
     }
     
     @Override
     @Transactional
     public void permanentDeletePost(Long postId, Long operatorId, String reason) {
-        // TODO: 实现硬删除帖子功能
-        log.info("TODO: 硬删除帖子 - 帖子ID:{}, 操作者ID:{}, 原因:{}", postId, operatorId, reason);
-        throw new UnsupportedOperationException("功能待实现：硬删除帖子");
+        log.info("永久删除帖子 - 帖子ID:{}, 操作者ID:{}, 原因:{}", postId, operatorId, reason);
+        
+        // 1. 查询帖子
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("帖子", postId));
+        
+        // 2. 验证删除原因
+        if (reason == null || reason.trim().isEmpty()) {
+            throw new BusinessException(400, "永久删除帖子必须提供删除原因");
+        }
+        
+        // 3. 记录删除信息（用于日志审计）
+        log.warn("永久删除帖子 - ID:{}, 标题:{}, 作者ID:{}, 操作者:{}, 原因:{}", 
+                postId, post.getTitle(), post.getAuthorId(), operatorId, reason);
+        
+        // 4. 执行硬删除
+        postRepository.delete(post);
+        
+        log.info("永久删除帖子成功 - 帖子ID:{}", postId);
     }
     
     @Override
